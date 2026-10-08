@@ -76,4 +76,4 @@ python3 scripts/check_publication.py
 
 自动化测试不需要真实 API Key。模拟合同测试与真实在线验收分开记录，见 [来源能力与验证状态](docs/SOURCE_CAPABILITIES.md)。
 
-保留上游 Apache-2.0 [LICENSE](LICENSE) 和 [NOTICE](NOTICE)，并标注了修改。上游来源见 [UPSTREAM](docs/UPSTREAM.md)。欢迎提交有测试和来源说明的改进。
+保留上游 [LICENSE](LICENSE) 原文和 [NOTICE](NOTICE)，并标注了修改。上游许可证虽标为 Apache License 2.0，但第 6、9 条与标准文本不同，GitHub 识别为 Other；详见 [许可证说明](docs/LICENSE_NOTE.md)。上游来源见 [UPSTREAM](docs/UPSTREAM.md)。欢迎提交有测试和来源说明的改进。

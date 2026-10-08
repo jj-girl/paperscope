@@ -4,7 +4,7 @@
 
 A local research-reading application with source-specific workspaces for **Sciverse, PubMed, Europe PMC, OpenAlex, Semantic Scholar, and Elicit**, plus an optional shared language-model connection.
 
-Modified and extended from [FrontierLens](https://github.com/Shannon4Science/sciverse-frontier-lens/tree/e67f0b2a0f940bd56e1b4b3f444c21ff3210e54f). The upstream Apache-2.0 license and attribution are preserved. See [upstream provenance](docs/UPSTREAM.md).
+Modified and extended from [FrontierLens](https://github.com/Shannon4Science/sciverse-frontier-lens/tree/e67f0b2a0f940bd56e1b4b3f444c21ff3210e54f). The upstream license text and attribution are preserved. See [upstream provenance](docs/UPSTREAM.md).
 
 ## What you can do
 
@@ -83,4 +83,4 @@ Automated tests use mocked provider/model responses and require no real credenti
 
 ## License and contribution
 
-Apache-2.0; see [LICENSE](LICENSE) and [NOTICE](NOTICE). Service/data licenses and API access terms remain separate. Contributions should preserve source provenance, explicit missing-data handling, and server-side credential storage. See [CONTRIBUTING.md](CONTRIBUTING.md).
+The repository uses the terms in the inherited [LICENSE](LICENSE), with attribution in [NOTICE](NOTICE). Its text is labeled Apache License 2.0 but differs from the standard in clauses 6 and 9; GitHub identifies it as Other. See [the license note](docs/LICENSE_NOTE.md). Service/data licenses and API access terms remain separate. Contributions should preserve source provenance, explicit missing-data handling, and server-side credential storage. See [CONTRIBUTING.md](CONTRIBUTING.md).
