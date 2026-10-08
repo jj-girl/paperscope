@@ -8,7 +8,7 @@ import {
 import { afterEach, expect, it, vi } from "vitest";
 import ServiceTools from "./ServiceTools";
 import SharedAi from "./SharedAi";
-import type { LiteraturePaper } from "./SourceApp";
+import type { LiteraturePaper } from "./literatureTypes";
 
 afterEach(() => {
   cleanup();

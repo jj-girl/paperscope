@@ -22,7 +22,7 @@ test-results/
 frontend/vite.config.js
 frontend/vite.config.d.ts
 
-# Modified for FrontierLens Multisource: keep all private runtime artifacts local.
+# Modified for PaperScope: keep all private runtime artifacts local.
 .cache/
 .runtime/
 logs/

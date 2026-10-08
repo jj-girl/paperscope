@@ -20,7 +20,7 @@ async def main() -> None:
         token=token,
         timeout_seconds=20,
     )
-    request_id = f"frontierlens-smoke-{uuid4()}"
+    request_id = f"paperscope-smoke-{uuid4()}"
     try:
         capabilities = await client.request_json(
             "GET", "/paper-schema", request_id=request_id

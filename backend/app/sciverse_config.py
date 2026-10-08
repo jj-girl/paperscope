@@ -3,11 +3,8 @@ from __future__ import annotations
 from pathlib import Path
 from urllib.parse import urlparse
 
-from fastapi import FastAPI
 from pydantic import BaseModel, ConfigDict, Field, SecretStr, field_validator
 
-from app.client import SciverseClient
-from app.gateway import PaperSchemaGateway, SciverseGateway
 from app.local_config import LocalConfigDocument
 from app.model_config import normalize_base_url
 
@@ -82,9 +79,7 @@ class SciverseConfigStore:
         path: Path | LocalConfigDocument,
         defaults: SciverseConnection,
     ) -> None:
-        self.document = (
-            path if isinstance(path, LocalConfigDocument) else LocalConfigDocument(path)
-        )
+        self.document = path if isinstance(path, LocalConfigDocument) else LocalConfigDocument(path)
         self.path = self.document.path
         self.defaults = defaults
 
@@ -100,9 +95,7 @@ class SciverseConfigStore:
     def status(self) -> SciverseConfigStatus:
         connection = self.load()
         key = (
-            connection.api_key.get_secret_value().strip()
-            if connection.api_key is not None
-            else ""
+            connection.api_key.get_secret_value().strip() if connection.api_key is not None else ""
         )
         return SciverseConfigStatus(
             enabled=connection.enabled,
@@ -139,39 +132,3 @@ class SciverseConfigStore:
             api_key=key,
             timeout_seconds=update.timeout_seconds,
         )
-
-
-def build_gateway(
-    connection: SciverseConnection,
-    *,
-    cache_ttl_seconds: int,
-) -> PaperSchemaGateway | None:
-    if not connection.configured or connection.api_key is None:
-        return None
-    return SciverseGateway(
-        SciverseClient(
-            base_url=connection.base_url,
-            token=connection.api_key.get_secret_value(),
-            timeout_seconds=connection.timeout_seconds,
-        ),
-        cache_ttl_seconds=cache_ttl_seconds,
-    )
-
-
-async def activate_sciverse_connection(
-    application: FastAPI,
-    connection: SciverseConnection,
-) -> None:
-    previous = application.state.gateway
-    application.state.gateway = build_gateway(
-        connection,
-        cache_ttl_seconds=application.state.cache_ttl_seconds,
-    )
-    application.state.product_capabilities = (
-        application.state.product_capabilities.model_copy(
-            update={"mode": "production" if connection.configured else "unconfigured"}
-        )
-    )
-    close = getattr(previous, "close", None) if previous is not None else None
-    if close is not None:
-        await close()

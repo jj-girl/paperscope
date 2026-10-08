@@ -1,9 +1,9 @@
 # Upstream attribution
 
-This project is an independent extension of [FrontierLens](https://github.com/Shannon4Science/sciverse-frontier-lens).
+PaperScope evolved from [FrontierLens](https://github.com/Shannon4Science/sciverse-frontier-lens), baseline commit `e67f0b2a0f940bd56e1b4b3f444c21ff3210e54f`. The extension was previously published as FrontierLens Multisource.
 
-Baseline commit: `e67f0b2a0f940bd56e1b4b3f444c21ff3210e54f`.
+The upstream LICENSE is retained verbatim and the original NOTICE attribution is retained. Its terms differ from standard Apache-2.0; see LICENSE_NOTE.md. Modifications are identified in inherited files.
 
-The upstream LICENSE text is retained verbatim, and the original NOTICE attribution is retained. The license has differences from standard Apache-2.0; see LICENSE_NOTE.md. Changes add multiple literature providers, source-specific workspaces, shared model workflows, bounded retry/caching, and tests. Existing modified source files carry change notices. New service integrations do not imply vendor endorsement.
+The current product is an API workbench. The original reader UI, graph components, automatic topic/reading workflows, reader-specific backend contracts and promotional screenshots have been removed. Independent configuration/transport utilities and the literature adapters remain. Optional shared AI is separate from the former reading application.
 
-The inherited architecture and data-contract documents describe the Sciverse baseline. See the main README and SOURCE_CAPABILITIES.md for the extended application.
+Attribution is a provenance record, not an active product name or an assertion of vendor endorsement.

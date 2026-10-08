@@ -83,7 +83,7 @@ class SemanticAccess:
                 content=cached[1],
                 headers={
                     "content-type": cached[2],
-                    "x-frontierlens-cache": "hit",
+                    "x-paperscope-cache": "hit",
                 },
             )
         self.cache.pop(digest, None)
@@ -106,7 +106,7 @@ class SemanticAccess:
                 return last if last is not None else httpx.Response(429)
             # All caller paths here are read operations, including paper/batch.
             response = await send(method, url, **{**kwargs, "timeout": min(30, remaining)})
-            response.headers["x-frontierlens-attempts"] = str(attempt + 1)
+            response.headers["x-paperscope-attempts"] = str(attempt + 1)
             if response.status_code not in {429, 502, 503, 504}:
                 mime = response.headers.get("content-type", "")
                 if (

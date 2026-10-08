@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from "react";
-import type { LiteraturePaper } from "./SourceApp";
+import type { LiteraturePaper } from "./literatureTypes";
 import { localFetch } from "./localFetch";
 type Analysis = {
   overview: string;

@@ -1,7 +1,6 @@
-# Modified for FrontierLens Multisource: multiple data sources and shared AI workflows.
+# Modified for PaperScope: multiple data sources and shared AI workflows.
 from __future__ import annotations
 
-from contextlib import asynccontextmanager
 from uuid import uuid4
 
 from fastapi import FastAPI, Request
@@ -9,50 +8,26 @@ from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
 
 from app.advanced import router as advanced_router
-from app.api import router
 from app.config import get_settings
 from app.errors import UpstreamError
 from app.literature import router as literature_router
 from app.local_config import LocalConfigDocument
 from app.model_config import ModelConfigStore, ModelConnection
-from app.model_runtime import (
-    GuideGenerator,
-    ModelRuntime,
-    ModelRuntimeError,
-    QueryPlanner,
-)
-from app.models import Coverage, EdgeType, ProductCapabilities
+from app.model_runtime import ModelRuntime, ModelRuntimeError
 from app.sciverse_config import (
     SciverseConfigStore,
     SciverseConnection,
-    activate_sciverse_connection,
 )
 from app.semantic_access import SemanticAccess
+from app.settings_api import router
 from app.shared_ai import router as shared_ai_router
-
-
-@asynccontextmanager
-async def lifespan(application: FastAPI):
-    await activate_sciverse_connection(
-        application,
-        application.state.sciverse_store.load(),
-    )
-    yield
-    close = (
-        getattr(application.state.gateway, "close", None)
-        if application.state.gateway is not None
-        else None
-    )
-    if close is not None:
-        await close()
 
 
 def create_app() -> FastAPI:
     settings = get_settings()
     application = FastAPI(
-        title="FrontierLens API",
-        version="0.3.0",
-        lifespan=lifespan,
+        title="PaperScope API",
+        version="0.4.0",
     )
     local_config = LocalConfigDocument(settings.local_config_path)
     application.state.semantic_access = SemanticAccess()
@@ -68,13 +43,8 @@ def create_app() -> FastAPI:
             timeout_seconds=settings.request_timeout_seconds,
         ),
     )
-    sciverse_connection = sciverse_store.load()
-    application.state.gateway = None
     application.state.sciverse_store = sciverse_store
-    application.state.cache_ttl_seconds = settings.cache_ttl_seconds
-    application.state.allow_local_sciverse_config = (
-        settings.allow_local_sciverse_config
-    )
+    application.state.allow_local_sciverse_config = settings.allow_local_sciverse_config
     model_store = ModelConfigStore(
         local_config,
         ModelConnection(
@@ -87,40 +57,7 @@ def create_app() -> FastAPI:
     model_runtime = ModelRuntime(model_store)
     application.state.model_store = model_store
     application.state.model_runtime = model_runtime
-    application.state.query_planner = QueryPlanner(model_runtime)
-    application.state.guide_generator = GuideGenerator(model_runtime)
     application.state.allow_local_model_config = settings.allow_local_model_config
-    application.state.product_capabilities = ProductCapabilities(
-        contract_version="2026-07-24",
-        mode="production" if sciverse_connection.configured else "unconfigured",
-        coverage=Coverage(
-            current_focus="AI conference papers with completed Paper Schema extraction",
-            paper_count="1M+",
-            empty_result_message=(
-                "No match was found in the current Sciverse Paper Schema corpus. "
-                "This does not mean the research is absent from the scholarly literature."
-            ),
-        ),
-        resources=[
-            "paper_search",
-            "paper_entities",
-            "internal_relations",
-            "complete_references",
-            "citation_graph",
-            "evidence",
-            "provenance",
-            "query_planning",
-            "research_guide",
-        ],
-        edge_types=list(EdgeType),
-        limits={
-            "topic_graph_default_papers": 60,
-            "citation_graph_max_nodes": 500,
-            "citation_graph_max_edges": 500,
-            "material_batch_schema_ids": 20,
-            "evidence_hydrate_items": 50,
-        },
-    )
     application.add_middleware(
         CORSMiddleware,
         allow_origins=list(settings.allowed_origins),
@@ -169,9 +106,7 @@ def create_app() -> FastAPI:
                 }
             },
             headers=(
-                {"Retry-After": str(exc.retry_after)}
-                if exc.retry_after is not None
-                else None
+                {"Retry-After": str(exc.retry_after)} if exc.retry_after is not None else None
             ),
         )
 

@@ -1,1 +1,1 @@
-"""FrontierLens backend-for-frontend."""
+"""PaperScope backend-for-frontend."""

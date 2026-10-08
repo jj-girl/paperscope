@@ -80,7 +80,7 @@ wheels = [
 ]
 
 [[package]]
-name = "frontierlens-backend"
+name = "paperscope-backend"
 version = "0.1.0"
 source = { virtual = "." }
 dependencies = [

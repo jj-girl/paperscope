@@ -2,7 +2,7 @@
 
 The application distinguishes provider capabilities, implemented operations, and live verification. No provider's full API surface is claimed to be implemented.
 
-The current entry point is the API Workbench, defaulting to no application-side LLM. See the [dated database-scope and endpoint reference](API_REFERENCE_RESEARCH.md), generated from the same definitions as the 67 operation buttons. The original reader components remain as legacy source and tests, but are no longer mounted by the web entry point.
+The current entry point is the API Workbench, defaulting to no application-side LLM. See the [dated database-scope and endpoint reference](API_REFERENCE_RESEARCH.md), generated from the same definitions as the 67 operation buttons. The original reader components, routes, graph assembly and their exclusive tests/assets have been deleted from the current source tree.
 
 | Provider | Implemented | Access and validation boundary |
 | --- | --- | --- |
@@ -27,6 +27,8 @@ The same optional model configuration can be used over supported result sets aft
 
 ## Verification
 
-The API-workbench revision was validated with 119 backend and 43 frontend tests, plus build/type/lint checks. Browser checks confirmed that opening the page and running Schema search did not request model, discovery, topic or shared-AI routes; the 390-pixel layout had no horizontal overflow or browser errors. Tests use synthetic credentials and mocked services; GitHub Actions needs no real API keys. These checks do not imply all 67 operations passed live validation.
+The PaperScope cleanup revision was validated with 85 backend and 12 frontend tests, plus build/type/lint checks. Browser checks confirmed that opening the page and running Schema search did not request model, discovery, topic or shared-AI routes; the 390-pixel layout had no horizontal overflow or browser errors. Tests use synthetic credentials and mocked services; GitHub Actions needs no real API keys. These checks do not imply all 67 operations passed live validation.
 
 Live checks were small acceptance examples, not retrieval-quality or scientific-validity benchmarks. Private run logs, downloaded articles and generated research results are excluded from the repository.
+
+The reduced test count reflects removal of tests exclusive to the retired reader, graph assembly and automatic guide. Current data adapters, shared analysis, connection settings, credential handling, removed-route checks and pure-API behavior remain covered.

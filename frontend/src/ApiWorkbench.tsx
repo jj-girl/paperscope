@@ -7,8 +7,7 @@ import {
   readJson,
 } from "./SourceConnections";
 import ServiceTools from "./ServiceTools";
-import "./styles.css";
-import "./sources.css";
+import "./base.css";
 import "./api-workbench.css";
 
 type Connection = { id: string; configured: boolean; requires_key: boolean };
@@ -92,8 +91,8 @@ export default function ApiWorkbench() {
     <div className="api-workbench">
       <header className="api-topbar">
         <div>
-          <strong>文献接口实验台</strong>
-          <span>范围 · 粒度 · 输入 · 输出</span>
+          <strong>PaperScope</strong>
+          <span>文献接口实验台 · 范围 · 粒度 · 输入 · 输出</span>
         </div>
         <span className={`api-mode ${aiEnabled ? "optional" : ""}`}>
           {aiEnabled ? "AI 扩展已显式开启" : "纯 API 模式 · 不调用本地 LLM"}

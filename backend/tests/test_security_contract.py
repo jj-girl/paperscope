@@ -31,7 +31,7 @@ def walk_keys(value: Any) -> set[str]:
 
 def test_public_routes_do_not_expose_internal_keys() -> None:
     client = TestClient(app)
-    response = client.get("/api/capabilities")
+    response = client.get("/api/literature/providers")
     assert response.status_code == 200
     assert not (walk_keys(response.json()) & FORBIDDEN_KEYS)
 

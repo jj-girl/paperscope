@@ -1,4 +1,4 @@
-# Modified for FrontierLens Multisource: add publication checks without credentials.
+# Modified for PaperScope: add publication checks without credentials.
 name: CI
 
 on:

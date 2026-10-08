@@ -217,7 +217,7 @@ async def openalex_tool(operation, body, request, client):
 
 
 def ncbi_params(key):
-    return {"db": "pubmed", "tool": "frontierlens_multisource", **({"api_key": key} if key else {})}
+    return {"db": "pubmed", "tool": "paperscope", **({"api_key": key} if key else {})}
 
 
 async def ncbi_fetch(client, key, ids=None, **params):

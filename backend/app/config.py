@@ -20,7 +20,6 @@ class Settings(BaseSettings):
     sciverse_api_token: SecretStr | None = None
     local_config_path: Path = PROJECT_ROOT / "local.config.json"
     request_timeout_seconds: float = Field(default=20, ge=1, le=120)
-    cache_ttl_seconds: int = Field(default=300, ge=10, le=3600)
     max_request_body_bytes: int = Field(default=262_144, ge=1024, le=1_048_576)
     model_base_url: str = "https://api.openai.com/v1"
     model_name: str = "gpt-4.1-mini"

@@ -1,6 +1,6 @@
 # Security policy
 
-Modified for FrontierLens Multisource from the upstream security policy.
+Modified for PaperScope from the upstream security policy.
 
 ## Local application boundary
 

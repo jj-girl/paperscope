@@ -1,4 +1,4 @@
-// Modified for FrontierLens Multisource: multiple data sources and shared AI workflows.
+// Modified for PaperScope: multiple data sources and shared AI workflows.
 import { StrictMode } from "react";
 import { createRoot } from "react-dom/client";
 

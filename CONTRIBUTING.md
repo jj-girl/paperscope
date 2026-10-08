@@ -1,6 +1,6 @@
 # Contributing
 
-Modified for FrontierLens Multisource from the upstream contribution guide.
+Modified for PaperScope from the upstream contribution guide.
 
 1. Install with `./run.sh setup`.
 2. Keep source-specific identifiers and capability boundaries explicit.
@@ -12,4 +12,4 @@ Never commit credentials, local configuration, provider responses, downloads, br
 
 Sciverse internal relations, paper citations and related suggestions are separate semantics. Other sources must not be mapped to invented Paper Schema facts. AI additions must stay within the returned catalog, preserve source basis, and expose missing evidence.
 
-Keep upstream copyright/license notices and mark modifications to inherited files. Local architecture notes describing the original Sciverse reader are identified as baseline documentation.
+Keep upstream copyright/license notices and mark modifications to inherited files. Keep documentation aligned with the current API workbench; do not reintroduce retired reader flows.

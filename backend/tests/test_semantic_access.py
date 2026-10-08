@@ -36,7 +36,7 @@ async def test_limited_retry_then_cache_and_credential_isolation():
     assert response.status_code == 200
     assert calls == [0, 6]
     cached = await access.request(send, "GET", url, params={"query": "test"})
-    assert cached.headers["x-frontierlens-cache"] == "hit"
+    assert cached.headers["x-paperscope-cache"] == "hit"
     assert len(calls) == 2
     await access.request(
         send, "GET", url, params={"query": "test"}, headers={"x-api-key": "different-account"}

@@ -7,7 +7,7 @@ import {
 } from "@testing-library/react";
 import { afterEach, expect, it, vi } from "vitest";
 import SharedAi from "./SharedAi";
-import type { LiteraturePaper } from "./SourceApp";
+import type { LiteraturePaper } from "./literatureTypes";
 
 afterEach(() => {
   cleanup();

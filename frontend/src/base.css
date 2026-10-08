@@ -1,0 +1,62 @@
+:root {
+  --sv-paper: #fafaf7;
+  --sv-paper-2: #f6f5f0;
+  --sv-paper-3: #f1f0eb;
+  --sv-ink: #1a1a1a;
+  --sv-ink-2: #5c5c5c;
+  --sv-ink-3: #9a9a93;
+  --sv-brand: #5b5bf7;
+  --sv-brand-soft: #f0f0ff;
+  --sv-hairline: #ecece7;
+  --sv-hairline-strong: #d9d8d1;
+  --sv-serif: ui-serif, Georgia, Cambria, "Times New Roman", Times, serif;
+  --sv-sans: ui-sans-serif, system-ui, -apple-system, "PingFang SC",
+    "Hiragino Sans GB", "Microsoft YaHei", sans-serif;
+  --sv-mono: ui-monospace, "Cascadia Mono", "Menlo", monospace;
+  color: var(--sv-ink);
+  background: var(--sv-paper);
+  font-family: var(--sv-sans);
+  font-synthesis: none;
+  letter-spacing: 0;
+}
+
+* { box-sizing: border-box; }
+html, body, #root { min-width: 320px; min-height: 100%; margin: 0; }
+body { min-height: 100vh; overflow: hidden; }
+button, textarea, input { font: inherit; letter-spacing: 0; }
+button { color: inherit; cursor: pointer; }
+button:disabled { cursor: not-allowed; opacity: .55; }
+h1, h2, h3, p { margin-top: 0; }
+
+.source-muted {
+  font-size: 12px;
+  color: var(--sv-ink-2);
+  line-height: 1.8;
+}
+
+.source-notice {
+  background: #fff9ec;
+  border: 1px solid #eee0c4;
+  padding: 12px;
+  border-radius: 7px;
+  font-size: 12px;
+  line-height: 1.8;
+}
+
+.source-error {
+  background: #fff1ed;
+  color: #983a27;
+  border: 1px solid #ecd2c8;
+  padding: 14px;
+  border-radius: 7px;
+  font-size: 13px;
+  line-height: 1.8;
+  margin-bottom: 20px;
+}
+
+.source-error button {
+  display: flex;
+  margin-top: 10px;
+  font-size: 12px;
+  color: var(--sv-ink);
+}

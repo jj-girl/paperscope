@@ -171,7 +171,7 @@ async def fetch(client: httpx.AsyncClient, url: str, **kwargs) -> httpx.Response
     except httpx.RequestError as exc:
         raise HTTPException(502, "无法连接数据源，请检查网络或代理。") from exc
     if response.status_code == 429:
-        raw_attempts = response.headers.get("x-frontierlens-attempts", "0")
+        raw_attempts = response.headers.get("x-paperscope-attempts", "0")
         attempts = int(raw_attempts) if raw_attempts.isdigit() else 0
         if attempts > 1:
             message = (
@@ -278,7 +278,7 @@ def pubmed_papers(root: ET.Element) -> list[Paper]:
 
 
 async def pubmed(client, query, size, key):
-    common = {"db": "pubmed", "tool": "frontierlens_multisource"}
+    common = {"db": "pubmed", "tool": "paperscope"}
     if key:
         common["api_key"] = key
     base = "https://eutils.ncbi.nlm.nih.gov/entrez/eutils/"

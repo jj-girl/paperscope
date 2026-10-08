@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState, type FormEvent } from "react";
 import { SERVICE_OPERATIONS, type ServiceOperation } from "./serviceOperations";
 import type { ApiContract } from "./apiResearch";
-import type { LiteraturePaper } from "./SourceApp";
+import type { LiteraturePaper } from "./literatureTypes";
 import SharedAi from "./SharedAi";
 import { localFetch } from "./localFetch";
 import "./service-tools.css";
