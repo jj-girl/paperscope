@@ -1,10 +1,12 @@
 export interface ToolField {
   key: string;
   label: string;
-  type?: "text" | "number" | "textarea" | "ids" | "json" | "select";
+  type?: "text" | "number" | "textarea" | "ids" | "numbers" | "json" | "select";
   options?: [string, string][];
   value?: string;
   required?: boolean;
+  min?: number;
+  max?: number;
 }
 export interface ServiceOperation {
   id: string;
@@ -14,6 +16,8 @@ export interface ServiceOperation {
   createsTask?: boolean;
   needsKey?: boolean;
   download?: "pdf" | "tei" | "resource";
+  basicSearch?: boolean;
+  directPath?: string;
 }
 const query: ToolField = {
   key: "query",

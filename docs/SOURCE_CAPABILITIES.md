@@ -2,18 +2,20 @@
 
 The application distinguishes provider capabilities, implemented operations, and live verification. No provider's full API surface is claimed to be implemented.
 
+The current entry point is the API Workbench, defaulting to no application-side LLM. See the [dated database-scope and endpoint reference](API_REFERENCE_RESEARCH.md), generated from the same definitions as the 67 operation buttons. The original reader components remain as legacy source and tests, but are no longer mounted by the web entry point.
+
 | Provider | Implemented | Access and validation boundary |
 | --- | --- | --- |
-| Sciverse | Original Paper Schema journey; metadata catalog/search, semantic evidence, source-text paging and resource retrieval | Data and model connections are separate. A bounded search→graph→AI guide and paragraph/provenance examples were exercised. Resource availability remains item-specific. |
+| Sciverse | Metadata catalog/search/relations, semantic evidence, text/resources, and all 18 documented Paper Schema routes through 19 operation entries | Data access does not require the model. Direct Schema search, entities/detail, relations, citations and materials passed live checks. All Schema routes have mocked dispatch tests proving no model calls. Resource availability remains item-specific. |
 | PubMed | Search, abstracts, MeSH, publication types, date/type filters, ELink relations, history sets and PMID batches | Biomedical records are not full text. Core search/filter/history/batch paths were exercised without an NCBI key. |
 | Europe PMC | Search, open text, annotations/context, references/citations and data links | Searchable does not mean downloadable. Open-text and annotation examples were exercised. Text-mined annotations are not verified scientific claims. |
-| OpenAlex | Search, returned-sample overview, whole-query grouping, author/institution details and works, incoming/outgoing citations, PDF/TEI download | Content requires a key. Core endpoints and example PDF/TEI files were exercised; TEI text can feed shared AI when its paper ID matches. Group buckets still require paging. |
+| OpenAlex | Search, whole-query grouping, author/institution details and works, incoming/outgoing citations, PDF/TEI download | Content requires a key. Core endpoints and example PDF/TEI files were exercised. Group buckets still require paging. Expanded-corpus selection is not exposed in this version. |
 | Semantic Scholar | Search, reference/citation paging, recommendations, author exploration, batches and citation diagrams | Anonymous calls may be throttled or require authentication. Successful data paths are contract-tested; anonymous live checks encountered 429. No empty-result substitution is used. |
 | Elicit | Search, report/review/agent creation, sessions/status/events, messages/stop/resume, sources, artifact content and download links | Optional paid API access. Adapter and failure-path tests use mocks; no claim of a completed live Elicit workflow is made. |
 
 ## Shared model
 
-The same model configuration is used across supported literature workspaces. See [SHARED_AI.md](SHARED_AI.md). Sciverse keeps its original schema-grounded guide in addition to the general source integrations.
+The same optional model configuration can be used over supported result sets after explicitly enabling the AI extension. See [SHARED_AI.md](SHARED_AI.md). The former Sciverse model-guided journey is no longer part of the active UI. Elicit generation buttons expose their contracts but are disabled in pure-data mode.
 
 ## Operational limits
 
@@ -25,6 +27,6 @@ The same model configuration is used across supported literature workspaces. See
 
 ## Verification
 
-The source baseline was validated with 97 backend and 39 frontend tests, plus build/type/lint checks. Public-release dependency updates are checked again before publication. Tests use synthetic credentials and mocked services; GitHub Actions needs no real API keys.
+The API-workbench revision was validated with 119 backend and 43 frontend tests, plus build/type/lint checks. Browser checks confirmed that opening the page and running Schema search did not request model, discovery, topic or shared-AI routes; the 390-pixel layout had no horizontal overflow or browser errors. Tests use synthetic credentials and mocked services; GitHub Actions needs no real API keys. These checks do not imply all 67 operations passed live validation.
 
 Live checks were small acceptance examples, not retrieval-quality or scientific-validity benchmarks. Private run logs, downloaded articles and generated research results are excluded from the repository.

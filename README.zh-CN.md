@@ -1,21 +1,25 @@
 # FrontierLens Multisource
 
-[English](README.md) · [来源能力](docs/SOURCE_CAPABILITIES.md) · [共享 AI](docs/SHARED_AI.md)
+[English](README.md) · [API 范围与输入输出](docs/API_REFERENCE_RESEARCH.md) · [来源能力](docs/SOURCE_CAPABILITIES.md) · [可选 AI](docs/SHARED_AI.md)
 
-基于 [FrontierLens 指定版本](https://github.com/Shannon4Science/sciverse-frontier-lens/tree/e67f0b2a0f940bd56e1b4b3f444c21ff3210e54f) 修改和扩展的本地文献研究应用，使用 Python 后端与 React 前端。它按不同文献接口的能力设计工作区，并让各来源复用同一份可选大模型配置。
+基于 [FrontierLens 指定版本](https://github.com/Shannon4Science/sciverse-frontier-lens/tree/e67f0b2a0f940bd56e1b4b3f444c21ff3210e54f) 改造的本地**文献接口实验台**，使用 Python 后端与 React 前端。当前网页已移除原版的问题规划和模型导读外壳，默认不调用使用者配置的大模型，直接探索各文献 API 的数据库范围、数据粒度、输入和输出。
+
+使用顺序：**选择数据服务 → 查看覆盖范围 → 点击带方法与路径的 API 按钮 → 填写参数并运行 → 检查返回字段与出处 → 导出结果**。六个来源共 67 个操作入口；按钮数不等于独立端点数，也不代表已覆盖供应商的全部 API。点击按钮只选择操作，不会自动请求。
 
 ## 来源与用途
 
 | 来源 | 主要用途 |
 | --- | --- |
-| Sciverse | 结构化阅读、论文内实体关系、出处回查、元数据与证据检索 |
+| Sciverse | 直接调用元数据、全文片段、实体关系、引用、证据、出处和结构材料包接口 |
 | PubMed | 医学文献筛选、MeSH、年份/文献类型筛选、关联记录和批量读取 |
 | Europe PMC | 开放正文、实体标注、引用及数据库关联阅读 |
 | OpenAlex | 完整查询聚合、作者机构探索、引用图、PDF/TEI 获取 |
 | Semantic Scholar | 相关工作、参考文献与施引、推荐、作者和批量查询 |
 | Elicit | 可选付费接入：筛选、抽取、报告和研究 Agent 任务 |
 
-共享 AI 支持检索词规划、导读、比较、材料问答、筛选建议、带支持摘录的字段抽取，以及带引用的综述草稿。结果可导出 CSV、JSON 或 Markdown。筛选和结论仍需人工核对。
+Sciverse 的 Paper Schema 已有结构不需要本应用再调用 LLM 才能读取；元数据、可获取正文与已完成 Schema 的论文覆盖范围不同，`unique_id`、`doc_id`、`schema_id` 不能互换。每个操作都标明它读取的是原始记录、供应方预处理结果、服务端检索结果，还是生成式任务。
+
+“启用 AI 扩展（可选）”默认关闭。开启后，可将支持的论文结果交给共享 AI 做导读、比较、问答、筛选、抽取或综述草稿；Elicit 的生成式任务也需要显式开启此开关。供应方语义检索和预处理抽取不等于本应用调用 LLM。
 
 ## 安装运行
 
@@ -55,7 +59,7 @@ ssh -N -L 3040:127.0.0.1:3040 USER@SERVER
 - Sciverse 需要数据 Token；共享模型使用另一组独立的模型地址、模型名与 API Key。
 - Elicit 是可选的付费 API 集成，不配置它也能使用其他来源和本应用自己的 AI 流程。
 
-页面提供“打开连接设置”和“共享模型设置”。真实配置只写入本地 `local.config*.json`，Git 默认忽略，并在支持的平台上设置为仅所有者可读写。`.env.example` 只列变量名，值均为空。
+页面提供独立的“数据连接设置”，不要求填写模型 Key；开启 AI 扩展后才显示“可选模型设置”。真实配置只写入本地 `local.config*.json`，Git 默认忽略，并在支持的平台上设置为仅所有者可读写。`.env.example` 只列变量名，值均为空。
 
 数据服务、模型和研究任务可能按账户规则计费。切换来源不会自动创建研究任务。API 接口和代码许可证不授予论文内容的额外使用权。
 

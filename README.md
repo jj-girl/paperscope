@@ -1,8 +1,10 @@
 # FrontierLens Multisource
 
-[简体中文](README.zh-CN.md) · [Source capabilities](docs/SOURCE_CAPABILITIES.md) · [Shared AI](docs/SHARED_AI.md)
+[简体中文](README.zh-CN.md) · [API scope and contracts](docs/API_REFERENCE_RESEARCH.md) · [Source capabilities](docs/SOURCE_CAPABILITIES.md) · [Optional AI](docs/SHARED_AI.md)
 
-A local research-reading application with source-specific workspaces for **Sciverse, PubMed, Europe PMC, OpenAlex, Semantic Scholar, and Elicit**, plus an optional shared language-model connection.
+A local **Literature API Workbench** for **Sciverse, PubMed, Europe PMC, OpenAlex, Semantic Scholar, and Elicit**. The active page replaces the original question-planning and guided-reader shell with named API operation buttons, database scope, data granularity, and input/output descriptions. The default mode does not call a user-configured LLM.
+
+Choose a source, inspect its coverage, select an API button, enter parameters, run it, and inspect or export the result. There are 67 operation entries across six providers; some entries share or combine native endpoints. This is not a claim to implement every provider API. Selecting a button alone never starts a request.
 
 Modified and extended from [FrontierLens](https://github.com/Shannon4Science/sciverse-frontier-lens/tree/e67f0b2a0f940bd56e1b4b3f444c21ff3210e54f). The upstream license text and attribution are preserved. See [upstream provenance](docs/UPSTREAM.md).
 
@@ -10,14 +12,14 @@ Modified and extended from [FrontierLens](https://github.com/Shannon4Science/sci
 
 | Source | Workspace |
 | --- | --- |
-| Sciverse | Paper Schema graphs, reading guides, provenance, metadata search, evidence snippets, text and resources |
+| Sciverse | Direct metadata, evidence snippets, text/resources, Schema entities/relations, citations, provenance and material packs |
 | PubMed | Biomedical search, MeSH, publication-type/year filters, linked records, history and PMID batches |
 | Europe PMC | Open full-text reading, entity annotations and context, references, citations and database links |
 | OpenAlex | Search, whole-query aggregates, author/institution exploration, citation graphs, PDF and TEI XML retrieval |
 | Semantic Scholar | Search, references, citations, recommendations, authors and batches with bounded throttling/retries/cache |
 | Elicit | Optional paid API integration for search and asynchronous screening, extraction, reports and research-agent tasks |
 
-Shared AI can plan keywords, suggest reading order, compare papers, answer questions, propose screening decisions, extract specified fields with supporting quotes, and draft cited reviews. CSV, JSON and Markdown exports are available. AI outputs are suggestions for review, not verified scientific conclusions.
+The optional AI extension is off by default. Enable it explicitly to analyze supported paper results with the shared model or start Elicit generation tasks. Sciverse's existing Schema structures can be read without an application-side LLM. Provider-side retrieval models and precomputed extraction are labeled separately from generation. Metadata, full text and completed Schema have different coverage; their IDs are not interchangeable.
 
 ## Quick start
 
@@ -58,7 +60,7 @@ ssh -N -L 3040:127.0.0.1:3040 USER@SERVER
 - Elicit requires an API-enabled paid account; leaving it unconfigured does not block the other sources.
 - Shared AI requires your own compatible model Base URL, model name and API key. It does not require a Sciverse data token.
 
-Use **Open connection settings** in the selected workspace. Use **Shared model settings** for the model used across sources. Settings are saved only in local, Git-ignored `local.config*.json` files with owner-only permissions where supported. Optional environment names are listed in `.env.example`; values are intentionally blank.
+Use **数据连接设置** (data connection settings) independently of any model. **可选模型设置** (optional model settings) appears only after enabling the AI extension. Settings are saved only in local, Git-ignored `local.config*.json` files with owner-only permissions where supported. Optional environment names are listed in `.env.example`; values are intentionally blank.
 
 API and model calls may incur charges under your provider account. Research-task creation and model calls are user-initiated. They are not started merely by selecting another source.
 

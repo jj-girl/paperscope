@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState, type FormEvent } from "react";
-import { SERVICE_OPERATIONS } from "./serviceOperations";
+import { SERVICE_OPERATIONS, type ServiceOperation } from "./serviceOperations";
+import type { ApiContract } from "./apiResearch";
 import type { LiteraturePaper } from "./SourceApp";
 import SharedAi from "./SharedAi";
 import { localFetch } from "./localFetch";
@@ -18,6 +19,7 @@ type ToolResult = {
   title?: string;
   webenv?: string;
   query_key?: string;
+  provider_response?: unknown;
   effective_query?: string;
   edges?: { source: string; target: string; type: string }[];
 };
@@ -200,6 +202,12 @@ function ResultView({ data }: { data: ToolResult }) {
       {data.title && <h3>{data.title}</h3>}
       {data.details && <StructuredValue value={data.details} />}
       {data.data && <StructuredValue value={data.data} />}
+      {!!data.provider_response && (
+        <details>
+          <summary>查看供应方响应字段（已移除凭据字段）</summary>
+          <StructuredValue value={data.provider_response} />
+        </details>
+      )}
       {data.view === "groups" ? (
         <div className="tools-groups">
           {data.items.map((g, i) => (
@@ -250,6 +258,12 @@ export default function ServiceTools({
   configured,
   onSettings,
   onModelSettings,
+  operations: providedOperations,
+  selectedOperation,
+  onOperationChange,
+  contract,
+  dataOnly = false,
+  hideSelector = false,
 }: {
   provider: string;
   query: string;
@@ -257,9 +271,22 @@ export default function ServiceTools({
   configured: boolean;
   onSettings: () => void;
   onModelSettings?: () => void;
+  operations?: ServiceOperation[];
+  selectedOperation?: string;
+  onOperationChange?: (id: string) => void;
+  contract?: ApiContract;
+  dataOnly?: boolean;
+  hideSelector?: boolean;
 }) {
-  const operations = SERVICE_OPERATIONS[provider] || [];
-  const [operation, setOperation] = useState(operations[0]?.id || "");
+  const operations = providedOperations || SERVICE_OPERATIONS[provider] || [];
+  const [internalOperation, setInternalOperation] = useState(
+    operations[0]?.id || "",
+  );
+  const operation = selectedOperation ?? internalOperation;
+  function setOperation(id: string) {
+    if (onOperationChange) onOperationChange(id);
+    else setInternalOperation(id);
+  }
   const spec = operations.find((o) => o.id === operation)!;
   const [values, setValues] = useState<Record<string, string>>({});
   const [data, setData] = useState<ToolResult | null>(null);
@@ -321,7 +348,12 @@ export default function ServiceTools({
 
   async function run(event?: FormEvent, next?: Record<string, unknown>) {
     event?.preventDefault();
-    if (busy) return;
+    if (
+      busy ||
+      (spec.needsKey && !configured) ||
+      (dataOnly && contract?.model === "generation")
+    )
+      return;
     const controller = new AbortController();
     active.current?.abort();
     active.current = controller;
@@ -346,24 +378,37 @@ export default function ServiceTools({
                 ? Number(values[f.key])
                 : f.type === "ids"
                   ? values[f.key].split(/[\s,]+/).filter(Boolean)
-                  : f.type === "json"
-                    ? JSON.parse(values[f.key])
-                    : values[f.key],
+                  : f.type === "numbers"
+                    ? values[f.key]
+                        .split(/[\s,，]+/)
+                        .filter(Boolean)
+                        .map(Number)
+                    : f.type === "json"
+                      ? JSON.parse(values[f.key])
+                      : values[f.key],
             ]),
         );
       savedRequest.current = body;
       let path = `/api/advanced/${provider}/${operation}`;
+      if (spec.basicSearch) path = `/api/literature/${provider}/search`;
+      if (spec.directPath)
+        path =
+          spec.directPath +
+          encodeURIComponent(String(body.record_id || "")) +
+          (provider === "semantic_scholar" ? "/recommendations" : "");
       if (spec.download === "resource")
         path = `/api/advanced/sciverse/resource?file_name=${encodeURIComponent(String(body.record_id || ""))}`;
       else if (spec.download)
         path = `/api/advanced/openalex/content/${encodeURIComponent(String(body.record_id || ""))}/${spec.download}`;
       const response = await localFetch(path, {
-        method: spec.download ? "GET" : "POST",
+        method: spec.download || spec.directPath ? "GET" : "POST",
         signal: controller.signal,
-        headers: spec.download
-          ? undefined
-          : { "Content-Type": "application/json" },
-        body: spec.download ? undefined : JSON.stringify(body),
+        headers:
+          spec.download || spec.directPath
+            ? undefined
+            : { "Content-Type": "application/json" },
+        body:
+          spec.download || spec.directPath ? undefined : JSON.stringify(body),
       });
       if (!response.ok) {
         const e = await response.json().catch(() => ({}));
@@ -401,7 +446,26 @@ export default function ServiceTools({
           );
         }
       } else {
-        const value = await response.json();
+        let value = await response.json();
+        if (spec.basicSearch)
+          value = {
+            view: "papers",
+            items: value.papers || [],
+            total: value.total,
+            note:
+              (value.warnings || []).join("；") ||
+              "接口返回的论文记录，没有调用本地 LLM。",
+          };
+        if (spec.directPath)
+          value =
+            provider === "europepmc"
+              ? {
+                  view: "structured",
+                  items: [],
+                  data: value,
+                  note: "由供应方开放全文 XML 提取的段落，不是模型总结。",
+                }
+              : { view: "papers", items: value.papers || [], note: value.note };
         if (!controller.signal.aborted) {
           setData(value);
           if (
@@ -445,10 +509,11 @@ export default function ServiceTools({
     setTimeout(() => URL.revokeObjectURL(u), 1000);
   }
   const needsKey = !!spec.needsKey && !configured;
+  const generationBlocked = dataOnly && contract?.model === "generation";
   return (
     <section className="service-tools" aria-label={`${provider} 功能工作台`}>
       <header>
-        <h2>功能工作台</h2>
+        <h2>{contract ? "调用参数" : "功能工作台"}</h2>
         <p>
           选择真实接口操作。每次点击才发起请求；下一页沿用上一次提交的条件。
         </p>
@@ -466,20 +531,50 @@ export default function ServiceTools({
           <button onClick={() => setOperation("status")}>查看此任务状态</button>
         </p>
       )}
-      <label>
-        功能
-        <select
-          aria-label="选择接口功能"
-          value={operation}
-          onChange={(e) => setOperation(e.target.value)}
-        >
-          {operations.map((o) => (
-            <option key={o.id} value={o.id}>
-              {o.title}
-            </option>
-          ))}
-        </select>
-      </label>
+      {!hideSelector && (
+        <label>
+          功能
+          <select
+            aria-label="选择接口功能"
+            value={operation}
+            onChange={(e) => setOperation(e.target.value)}
+          >
+            {operations.map((o) => (
+              <option key={o.id} value={o.id}>
+                {o.title}
+              </option>
+            ))}
+          </select>
+        </label>
+      )}
+      {contract && (
+        <section className="api-contract" aria-label="当前 API 输入输出">
+          <div className="api-endpoint-list">
+            {contract.apis.map((api) => (
+              <code key={api}>{api}</code>
+            ))}
+          </div>
+          <dl>
+            <dt>输入</dt>
+            <dd>{contract.input}</dd>
+            <dt>输出</dt>
+            <dd>{contract.output}</dd>
+            <dt>粒度</dt>
+            <dd>{contract.granularity}</dd>
+            <dt>模型依赖</dt>
+            <dd>
+              {contract.model === "generation"
+                ? "供应商的生成式 AI 任务；不属于纯数据读取"
+                : contract.model === "retrieval"
+                  ? "本地不调用 LLM；服务端可使用检索模型"
+                  : contract.model === "precomputed"
+                    ? "读取供应方预处理结果；本地不调用 LLM"
+                    : "无需本地 LLM"}
+            </dd>
+          </dl>
+          {contract.note && <p>{contract.note}</p>}
+        </section>
+      )}
       <p className="source-muted">{spec.help}</p>
       {needsKey && (
         <div className="source-notice">
@@ -488,6 +583,13 @@ export default function ServiceTools({
             <button onClick={onSettings}>打开连接设置</button>
           )}
         </div>
+      )}
+      {generationBlocked && (
+        <p className="source-notice">
+          纯 API
+          模式不启动此生成式任务。可以查看其输入输出；如确需运行，请显式开启 AI
+          扩展。
+        </p>
       )}
       <form onSubmit={run} className="tools-form">
         {spec.fields.map((f) => (
@@ -507,7 +609,9 @@ export default function ServiceTools({
                   </option>
                 ))}
               </select>
-            ) : ["textarea", "ids", "json"].includes(f.type || "") ? (
+            ) : ["textarea", "ids", "numbers", "json"].includes(
+                f.type || "",
+              ) ? (
               <textarea
                 aria-label={f.label}
                 value={values[f.key] || ""}
@@ -521,6 +625,8 @@ export default function ServiceTools({
               <input
                 aria-label={f.label}
                 type={f.type === "number" ? "number" : "text"}
+                min={f.min}
+                max={f.max}
                 value={values[f.key] || ""}
                 required={f.required}
                 onChange={(e) =>
@@ -553,7 +659,10 @@ export default function ServiceTools({
             这是实际任务操作。提交可能计入账户额度；超时后先检查任务列表，不要重复创建。
           </p>
         )}
-        <button className="source-primary" disabled={busy || needsKey}>
+        <button
+          className="source-primary"
+          disabled={busy || needsKey || generationBlocked}
+        >
           {busy
             ? "正在请求…"
             : spec.createsTask

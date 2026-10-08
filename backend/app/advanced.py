@@ -32,6 +32,8 @@ class ToolInput(BaseModel):
     model_config = ConfigDict(extra="forbid", str_strip_whitespace=True)
     query: str = Field(default="", max_length=2000)
     record_id: str = Field(default="", max_length=1000)
+    child_id: str = Field(default="", max_length=1000)
+    markers: list[int] = Field(default_factory=list, max_length=100)
     ids: list[str] = Field(default_factory=list, max_length=100)
     cursor: str | None = Field(default=None, max_length=4096)
     page: int = Field(default=1, ge=1, le=500)
@@ -708,17 +710,29 @@ async def sciverse_tool(operation, body, request, client):
     key = connection.api_key.get_secret_value()
     headers = {"Authorization": f"Bearer {key}"}
     base = connection.base_url.rstrip("/")
-    if operation == "catalog":
-        data = await get_json(client, base + "/meta-catalog", headers=headers)
+    if operation.startswith("schema_"):
+        from app.sciverse_data import schema_call
+
+        data = await schema_call(operation, body, client, base, headers)
+    elif operation == "catalog":
+        collection = body.kind or "papers"
+        if collection not in {"papers", "authors", "sources"}:
+            raise HTTPException(422, "collection 只能为 papers、authors 或 sources。")
+        data = await get_json(
+            client, base + "/meta-catalog", headers=headers, params={"collection": collection}
+        )
     elif operation == "metadata":
         if set(body.options) - {"filters", "fields", "sort", "collection"}:
             raise HTTPException(422, "元数据配置含未知字段。")
         payload = {
-            "query": required(body.query, "检索词"),
             "page_size": body.size,
             "page": body.page,
             **body.options,
         }
+        if body.query:
+            payload["query"] = body.query
+        if not body.query and not payload.get("filters"):
+            raise HTTPException(422, "请提供 query 或 filters。")
         if body.cursor:
             payload["cursor"] = body.cursor
         data = await get_json(
@@ -745,6 +759,21 @@ async def sciverse_tool(operation, body, request, client):
                 "limit": 5000,
             },
         )
+    elif operation == "meta_relations":
+        if body.kind not in {"CITATIONS", "REFERENCES", "RELATED_WORKS"}:
+            raise HTTPException(422, "请选择关系类型。")
+        data = await get_json(
+            client,
+            base + "/meta-paper-relations",
+            method="POST",
+            headers=headers,
+            json={
+                "unique_id": required(body.record_id, "unique_id"),
+                "relation": body.kind,
+                "page": body.page,
+                "page_size": body.size,
+            },
+        )
     else:
         raise HTTPException(404, "未定义的 Sciverse 操作。")
     if data.get("biz_code") not in {None, 0}:
@@ -753,13 +782,14 @@ async def sciverse_tool(operation, body, request, client):
         records = data.get("results" if operation == "metadata" else "hits", [])
         items = [
             row(
-                p.get("title"),
+                p.get("title") or p.get("name") or p.get("display_name"),
                 p.get("chunk") or p.get("abstract"),
                 p.get("access_oa_url"),
                 **{
                     k: p.get(k)
                     for k in (
                         "doi",
+                        "unique_id",
                         "doc_id",
                         "chunk_id",
                         "offset",
@@ -774,6 +804,7 @@ async def sciverse_tool(operation, body, request, client):
         return result(
             "records",
             items,
+            provider_response=clean(data, key),
             total=data.get("total_count"),
             next_cursor=data.get("next_cursor"),
             note="返回来源材料，不是模型结论。doc_id 可用于正文读取，位置字段用于回查。",
@@ -781,6 +812,10 @@ async def sciverse_tool(operation, body, request, client):
     return result(
         "structured",
         data=clean(data, key),
+        next_cursor=data.get("next_cursor"),
+        next_page=body.page + 1
+        if operation == "meta_relations" and body.page < data.get("total_pages", 0)
+        else None,
         next_offset=data.get("next_offset") if data.get("more") else None,
         note="返回来源记录、证据或文本；不是模型生成的答案。",
     )

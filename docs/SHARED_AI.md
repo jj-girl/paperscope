@@ -1,9 +1,9 @@
 # Shared AI workflows
 
-The application implements its own AI workflows over returned literature. These do not require an Elicit subscription.
+The application implements optional AI workflows over supported literature result sets. These do not require an Elicit subscription. The API Workbench defaults to pure-data mode and does not load or call the model.
 
-1. Choose a source and fetch papers.
-2. Open **AI 研究助手 · 共用模型配置** (shared AI assistant) in the result set or paper detail.
+1. Explicitly enable **启用 AI 扩展（可选）**, then choose a source and fetch papers.
+2. Open **AI 研究助手 · 共用模型配置** (shared AI assistant) where the result supplies supported paper records. Raw Schema objects and arbitrary structured responses are not automatically treated as paper collections.
 3. Choose a mode and review the scope and input before submitting.
 4. Inspect citations, evidence basis and limitations, then export if useful.
 
@@ -24,4 +24,4 @@ Europe PMC text and matched OpenAlex TEI text can be included after loading. Met
 
 Outputs can be exported as JSON, CSV (screening/extraction), or Markdown (review drafts). Results remain in the browser session unless you explicitly download them. Generated reviews are drafts and do not imply a comprehensive search or completed systematic review.
 
-Configure your own model in **Shared model settings**. The data-provider key and model key are separate. Clicking an AI operation sends the selected material to your chosen model endpoint and can incur usage charges. Calls are not automatically started when switching sources. Long operations have bounded waits and explicit errors.
+Configure your own model in **可选模型设置** (optional model settings). The data-provider key and model key are separate. Clicking an AI operation sends the selected material to your chosen model endpoint and can incur usage charges. Calls are not automatically started when switching sources. Long operations have bounded waits and explicit errors.

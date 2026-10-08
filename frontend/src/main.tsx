@@ -2,13 +2,10 @@
 import { StrictMode } from "react";
 import { createRoot } from "react-dom/client";
 
-import App from "./SourceApp";
-import { LanguageProvider } from "./i18n";
+import App from "./ApiWorkbench";
 
 createRoot(document.getElementById("root")!).render(
   <StrictMode>
-    <LanguageProvider>
-      <App />
-    </LanguageProvider>
+    <App />
   </StrictMode>,
 );
