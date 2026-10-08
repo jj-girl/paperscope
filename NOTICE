@@ -1,0 +1,13 @@
+FrontierLens
+Copyright 2026 OpenDataLab
+
+This product is an independent local application built for the public Sciverse
+Paper Schema API.
+
+FrontierLens Multisource
+Copyright 2026 FrontierLens Multisource contributors
+
+Modified and extended from Shannon4Science/sciverse-frontier-lens,
+commit e67f0b2a0f940bd56e1b4b3f444c21ff3210e54f.
+Extensions include source-specific literature workspaces, shared-model
+workflows, bounded API access, exports, documentation, and verification.
