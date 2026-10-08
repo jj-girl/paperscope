@@ -1,3 +1,4 @@
+import { SOURCE_DESCRIPTIONS } from "./sourceDescriptions";
 export interface SourceResearch {
   name: string;
   scope: string;
@@ -22,8 +23,7 @@ export const RESEARCH_DATE = "2026-10-08";
 export const SOURCE_RESEARCH: Record<string, SourceResearch> = {
   sciverse: {
     name: "Sciverse",
-    scope:
-      "按接口分库看待：通用元数据覆盖论文、书籍及作者/来源记录；正文检索只覆盖可获取文本；Paper Schema 只覆盖已结构化解析的论文，官方 GET /paper-schema 当前报告以 AI 会议论文为主，coverage.paper_count=1M+。",
+    scope: SOURCE_DESCRIPTIONS.sciverse.scope,
     granularity: [
       "元数据记录",
       "文本片段 / 正文",
@@ -54,8 +54,7 @@ export const SOURCE_RESEARCH: Record<string, SourceResearch> = {
   },
   pubmed: {
     name: "PubMed",
-    scope:
-      "NLM 的生物医学与生命科学书目检索库，主要包含 MEDLINE、PMC 文献对应的书目记录及 Bookshelf 相关引用。",
+    scope: SOURCE_DESCRIPTIONS.pubmed.scope,
     granularity: [
       "PMID 列表",
       "书目 / 摘要 / MeSH",
@@ -78,8 +77,7 @@ export const SOURCE_RESEARCH: Record<string, SourceResearch> = {
   },
   europepmc: {
     name: "Europe PMC",
-    scope:
-      "生命科学文献聚合库：包括 PubMed 摘要、大部分 PMC 内容，以及预印本、部分专利、指南和其他来源。与 PubMed 有大量重叠。",
+    scope: SOURCE_DESCRIPTIONS.europepmc.scope,
     granularity: [
       "文献记录",
       "开放全文 XML",
@@ -104,8 +102,7 @@ export const SOURCE_RESEARCH: Record<string, SourceResearch> = {
   },
   openalex: {
     name: "OpenAlex",
-    scope:
-      "跨学科学术图谱，包括 works、authors、institutions、sources、topics 等。默认查询核心语料；扩展语料是单独的 corpus 选项，本应用当前未启用。",
+    scope: SOURCE_DESCRIPTIONS.openalex.scope,
     granularity: [
       "学术对象",
       "作者/机构归属",
@@ -127,8 +124,7 @@ export const SOURCE_RESEARCH: Record<string, SourceResearch> = {
   },
   semantic_scholar: {
     name: "Semantic Scholar",
-    scope:
-      "跨学科 Academic Graph，组织论文、作者、引用等记录；另有 Recommendations 和 Datasets 服务，本页主要接 Graph 与推荐接口。",
+    scope: SOURCE_DESCRIPTIONS.semantic_scholar.scope,
     granularity: ["论文 / 作者记录", "引用边", "相关性推荐", "摘要与全文链接"],
     identifiers:
       "paperId 用于图谱调用，corpusId 也用于数据集；部分接口接受 DOI、arXiv、PMID 等外部标识。当前引用表单使用解析后的 paperId。",
@@ -150,8 +146,7 @@ export const SOURCE_RESEARCH: Record<string, SourceResearch> = {
   },
   elicit: {
     name: "Elicit",
-    scope:
-      "跨学科论文搜索与研究工作流平台。公开 v2 搜索可指定 Elicit 或 PubMed 语料，另有临床试验检索；本应用的快速搜索当前使用默认论文语料。",
+    scope: SOURCE_DESCRIPTIONS.elicit.scope,
     granularity: ["论文搜索记录", "研究会话", "筛选 / 抽取结果", "报告 / 产物"],
     identifiers:
       "论文可能提供 elicitId、DOI、PMID；任务用 sessionId，产物用会话内 artifactId。两类对象不要混用。",

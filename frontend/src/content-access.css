@@ -224,3 +224,57 @@
     padding: 8px;
   }
 }
+.source-explanation {
+  margin-top: 16px;
+  padding: 16px;
+  background: white;
+  border: 1px solid #dfe5ee;
+  border-radius: 8px;
+  font-size: 13px;
+  line-height: 1.9;
+}
+.source-explanation summary {
+  cursor: pointer;
+  font-weight: 600;
+  color: #345888;
+}
+.source-explanation h3 {
+  margin-top: 18px;
+  font-size: 15px;
+}
+.upstream-table {
+  margin-top: 14px;
+}
+.upstream-table table {
+  min-width: 650px;
+}
+.upstream-table td,
+.upstream-table th {
+  text-align: left;
+  padding: 12px;
+  border-bottom: 1px solid #e3e7ee;
+  vertical-align: top;
+  font-size: 12px;
+  line-height: 1.85;
+}
+.detailed-comparison > h2 {
+  margin-top: 30px;
+  font-size: 18px;
+}
+.detailed-comparison h3 {
+  margin-top: 20px;
+  font-size: 16px;
+}
+.detailed-comparison select {
+  border: 1px solid #cbd5e3;
+  padding: 8px;
+  border-radius: 6px;
+  background: white;
+}
+.api-io-table code {
+  display: block;
+  margin-top: 6px;
+  overflow-wrap: anywhere;
+  font-size: 11px;
+  color: #315888;
+}

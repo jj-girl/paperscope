@@ -2,7 +2,7 @@
 
 **A literature API workbench: coverage, granularity, inputs and outputs.**
 
-[简体中文](README.zh-CN.md) · [API reference](docs/API_REFERENCE_RESEARCH.md) · [Count audit](docs/COUNT_AUDIT.md) · [Integration status](docs/SOURCE_CAPABILITIES.md) · [Optional AI](docs/SHARED_AI.md)
+[简体中文](README.zh-CN.md) · [Upstream sources and API comparison](docs/SOURCE_COMPARISON.md) · [API reference](docs/API_REFERENCE_RESEARCH.md) · [Count audit](docs/COUNT_AUDIT.md) · [Integration status](docs/SOURCE_CAPABILITIES.md) · [Optional AI](docs/SHARED_AI.md)
 
 PaperScope exposes **Sciverse, PubMed, Europe PMC, OpenAlex, Semantic Scholar and Elicit** through named API operation buttons. Inspect each database's scope, select an endpoint, enter parameters, run it, and inspect or export its response. A comparison view explains differences in coverage and data granularity.
 

@@ -1,5 +1,10 @@
 import { COVERAGE } from "./coverageProfiles";
 import { RESEARCH_DATE, SOURCE_RESEARCH } from "./apiResearch";
+import { SOURCE_DESCRIPTIONS } from "./sourceDescriptions";
+import {
+  SourceExplanation,
+  DetailedComparisonTables,
+} from "./SourceExplanation";
 
 export function CoveragePanels({ source }: { source: string }) {
   const p = SOURCE_RESEARCH[source],
@@ -61,6 +66,7 @@ export function CoveragePanels({ source }: { source: string }) {
               <span key={g}>{g}</span>
             ))}
           </div>
+          <p>{SOURCE_DESCRIPTIONS[source].granularity}</p>
           <p>{p.identifiers}</p>
           <p>{p.boundary}</p>
           <details>
@@ -69,6 +75,7 @@ export function CoveragePanels({ source }: { source: string }) {
           </details>
         </div>
       </section>
+      <SourceExplanation source={source} />
     </>
   );
 }
@@ -134,6 +141,7 @@ export function CoverageComparison({
           </tbody>
         </table>
       </div>
+      <DetailedComparisonTables />
     </section>
   );
 }

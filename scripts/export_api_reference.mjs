@@ -8,7 +8,7 @@ const { build } = require("esbuild");
 const output = await build({
   stdin: {
     contents:
-      'export { API_OPERATIONS } from "./apiOperations"; export { SOURCE_RESEARCH, RESEARCH_DATE } from "./apiResearch"; export { COVERAGE } from "./coverageProfiles"; export { apiExample } from "./apiExamples"; export { operationContent } from "./contentAccess";',
+      'export { API_OPERATIONS } from "./apiOperations"; export { SOURCE_RESEARCH, RESEARCH_DATE } from "./apiResearch"; export { COVERAGE } from "./coverageProfiles"; export { apiExample } from "./apiExamples"; export { operationContent } from "./contentAccess"; export { SOURCE_DESCRIPTIONS } from "./sourceDescriptions";',
     resolveDir: path.join(root, "frontend/src"),
     loader: "ts",
   },
@@ -29,6 +29,7 @@ const {
   COVERAGE,
   apiExample,
   operationContent,
+  SOURCE_DESCRIPTIONS,
 } = module.exports;
 const cell = (value) =>
   String(value).replaceAll("|", "\\|").replaceAll("\n", " ");
@@ -157,3 +158,90 @@ for (const [source, ops] of Object.entries(API_OPERATIONS)) {
   }
 }
 fs.writeFileSync(path.join(root, "docs/RSI_EXAMPLES.md"), examples.join("\n"));
+
+const comparison = [
+  "# 文献服务：上游来源、范围、粒度、API 输入输出与全文覆盖",
+  "",
+  `官方资料核对日期：${RESEARCH_DATE}。数量沿用同日记录的官方平台/API 快照，详见 [数量核验与 curl 请求](COUNT_AUDIT.md)。`,
+  "",
+  "本文区分供应商整体能力、单个 API 的响应和 PaperScope 已接入的功能。上游来源指数据从哪里来；数据库范围指能检索哪些类型和学科；粒度指返回记录、段落、实体还是文件；全文覆盖指哪些记录实际具有可获取正文。相同文献可能出现在多个服务中，不能把服务数当作独立证据数。",
+  "",
+  "## 上游来源总表",
+  "",
+  "| 服务 | 已核实的来源说明 | 确认边界 |",
+  "| --- | --- | --- |",
+];
+for (const [id, d] of Object.entries(SOURCE_DESCRIPTIONS)) {
+  const refs = [...new Set(d.upstream.map((r) => r.url))]
+    .map((url, i) => `[官方依据 ${i + 1}](${url})`)
+    .join(" · ");
+  comparison.push(
+    `| ${SOURCE_RESEARCH[id].name} | ${cell(d.upstreamSummary)} ${refs} | ${cell(d.upstreamLimit)} |`,
+  );
+}
+comparison.push(
+  "",
+  "## 数据库范围与数据粒度",
+  "",
+  "| 服务 | 数据库范围 | 数据粒度：具体拿到什么 |",
+  "| --- | --- | --- |",
+);
+for (const [id, d] of Object.entries(SOURCE_DESCRIPTIONS))
+  comparison.push(
+    `| ${SOURCE_RESEARCH[id].name} | ${cell(d.scope)} | ${cell(d.granularity)} |`,
+  );
+comparison.push(
+  "",
+  "## 全文覆盖度与本应用接入范围",
+  "",
+  "比例仅对同一次 API 查询、同一默认记录集合计算；有全文标记不是下载成功率。Sciverse 官网不同口径之间未计算比例。PubMed 免费全文入口比例不写作严格 OA 比例。",
+  "",
+  "| 服务 | 全文覆盖度 | PaperScope 当前行为 |",
+  "| --- | --- | --- |",
+);
+for (const [id, d] of Object.entries(SOURCE_DESCRIPTIONS))
+  comparison.push(
+    `| ${SOURCE_RESEARCH[id].name} | ${cell(d.fulltext)} | ${cell(d.implementation)} |`,
+  );
+for (const [id, d] of Object.entries(SOURCE_DESCRIPTIONS)) {
+  comparison.push(
+    "",
+    `## ${SOURCE_RESEARCH[id].name}：来源明细与 API 输入输出`,
+    "",
+    "| 上游名称 | 是什么 | 提供什么 | 官方依据 |",
+    "| --- | --- | --- | --- |",
+  );
+  for (const row of d.upstream)
+    comparison.push(
+      `| ${cell(row.name)} | ${cell(row.explanation)} | ${cell(row.contribution)} | [说明](${row.url}) |`,
+    );
+  comparison.push(
+    "",
+    d.upstreamLimit,
+    "",
+    "下表为当前应用接入的 API 操作，非供应商所有接口的穷举。参数示例见 [RSI 功能示例](RSI_EXAMPLES.md)。",
+    "",
+    "| 功能及原生 API | 输入：提交什么 | 输出：返回什么 |",
+    "| --- | --- | --- |",
+  );
+  for (const op of API_OPERATIONS[id])
+    comparison.push(
+      `| ${op.title}<br>${op.contract.apis.map((a) => "`" + a + "`").join("<br>")} | ${cell(op.contract.input)} | ${cell(op.contract.output)}；返回单位：${cell(op.contract.granularity)} |`,
+    );
+}
+comparison.push(
+  "",
+  "## 需要特别区分的范围",
+  "",
+  "- OpenAlex 的默认主要记录集合叫 core，经过整理匹配，含义不是核心期刊。expansion 是另加的一批以数据集、仓储记录为主、字段通常较少的记录；all 合并两个集合。当前应用尚未提供切换。依据：[官方集合说明](https://help.openalex.org/data/works/corpus/)。",
+  "- Crossref、DataCite 等是上游提供者；作者、机构、主题等是 API 的对象类型，二者不能混为一列。",
+  "- Europe PMC 注释可来自摘要或正文；得到词语标注不意味着已得到全文。Elicit 的报告与抽取表是任务输出，也不等于原始论文全文。",
+  "- Sciverse 已直接验证 OpenAlex 来源标识及样本论文的 arXiv 原文位置；完整采集名单、各源占比与精确 OA 总量仍未核实。请求与响应见 [Sciverse 来源 API 核验](SCIVERSE_SOURCE_AUDIT.md)。",
+  "",
+  "本说明由 `sourceDescriptions.ts`、`apiOperations.ts` 等界面定义生成，运行 `node scripts/export_api_reference.mjs` 更新，避免页面与文档采用不同口径。",
+  "",
+);
+fs.writeFileSync(
+  path.join(root, "docs/SOURCE_COMPARISON.md"),
+  comparison.join("\n"),
+);

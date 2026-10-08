@@ -1,3 +1,4 @@
+import { SOURCE_DESCRIPTIONS } from "./sourceDescriptions";
 export type CoverageMetric = {
   label: string;
   value: string;
@@ -14,8 +15,7 @@ const europeCount = (query: string) =>
   `https://www.ebi.ac.uk/europepmc/webservices/rest/search?query=${encodeURIComponent(query)}&format=json&pageSize=1&resultType=idlist`;
 export const COVERAGE: Record<string, CoverageProfile> = {
   sciverse: {
-    sources:
-      "Sciverse 聚合元数据、可获取正文、已解析 Paper Schema 三个不同覆盖集合；不是可任意切换所有商业数据库的入口。",
+    sources: SOURCE_DESCRIPTIONS.sciverse.upstreamSummary,
     access: "原文片段与出处段落",
     summary:
       "可以按 doc_id 读取文本、按 Schema 出处回查段落。元数据命中不保证正文可取，结构材料包也不是整篇全文。",
@@ -50,8 +50,7 @@ export const COVERAGE: Record<string, CoverageProfile> = {
     ],
   },
   pubmed: {
-    sources:
-      "MEDLINE、PMC 对应书目及 Bookshelf 相关引用；以生物医学与生命科学为主。PubMed 是书目检索库，PMC 才是全文库。",
+    sources: SOURCE_DESCRIPTIONS.pubmed.upstreamSummary,
     access: "摘要与外部全文链接",
     summary:
       "当前 PubMed E-utilities 不返回期刊文章全文。即使有 PMCID，也只提供 PMC 跳转，不在本来源中自动读取全文。",
@@ -78,8 +77,7 @@ export const COVERAGE: Record<string, CoverageProfile> = {
     ],
   },
   europepmc: {
-    sources:
-      "PubMed 摘要、大部分 PMC 全文、预印本、Agricola、部分专利和指南等；各来源存在重叠。",
+    sources: SOURCE_DESCRIPTIONS.europepmc.upstreamSummary,
     access: "部分记录可直接读全文 XML",
     summary:
       "仅符合开放全文条件的记录可通过 fullTextXML 取正文。结果卡标出读取条件；读取成功后展示正文段落，并可保存原始 XML。",
@@ -105,8 +103,7 @@ export const COVERAGE: Record<string, CoverageProfile> = {
     ],
   },
   openalex: {
-    sources:
-      "以 Microsoft Academic Graph 和 Crossref 为基础，汇集 DataCite、PubMed、HAL 及机构/学科仓储等。当前查询核心语料，未启用扩展语料。",
+    sources: SOURCE_DESCRIPTIONS.openalex.upstreamSummary,
     access: "部分记录可下载 PDF / TEI XML",
     summary:
       "按每篇记录的 has_content 判断格式；只有 OA 标记或外部 PDF 链接还不够。Content API 需要 Key，下载成功后才显示预览。",
@@ -140,8 +137,7 @@ export const COVERAGE: Record<string, CoverageProfile> = {
     ],
   },
   semantic_scholar: {
-    sources:
-      "Semantic Scholar Academic Graph，汇集出版商和数据提供者的跨学科论文。Graph、Recommendations 与 Datasets 是不同服务。",
+    sources: SOURCE_DESCRIPTIONS.semantic_scholar.upstreamSummary,
     access: "摘要与外部 PDF 链接",
     summary:
       "当前 Graph / 推荐接口返回论文信息、引用和可能存在的开放 PDF 链接；本应用未通过这些接口取得论文正文。",
@@ -162,8 +158,7 @@ export const COVERAGE: Record<string, CoverageProfile> = {
     ],
   },
   elicit: {
-    sources:
-      "Elicit 论文索引；服务另支持限定 PubMed 语料及单独临床试验检索。本应用快速检索使用默认 Elicit 论文语料。",
+    sources: SOURCE_DESCRIPTIONS.elicit.upstreamSummary,
     access: "论文链接与研究任务产物",
     summary:
       "搜索提供论文记录和可能的全文链接；报告、抽取表、Agent 产物是生成输出，不是论文原文。未接入通用逐篇全文读取。",
