@@ -16,9 +16,9 @@ const europeCount = (query: string) =>
 export const COVERAGE: Record<string, CoverageProfile> = {
   sciverse: {
     sources: SOURCE_DESCRIPTIONS.sciverse.upstreamSummary,
-    access: "原文片段与出处段落",
+    access: "全文 / 片段与出处段落",
     summary:
-      "可以按 doc_id 读取文本、按 Schema 出处回查段落。元数据命中不保证正文可取，结构材料包也不是整篇全文。",
+      "可以按 doc_id 一次请求全文或按范围读取片段；Schema 出处接口用于回查定位段落。元数据命中不保证正文可取，结构材料包也不是整篇全文。",
     metrics: [
       {
         label: "学术文献",

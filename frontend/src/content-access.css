@@ -278,3 +278,91 @@
   font-size: 11px;
   color: #315888;
 }
+.content-read-controls {
+  grid-column: 1 / -1;
+  border: 1px solid #c8d8eb;
+  border-radius: 8px;
+  padding: 16px;
+  margin: 0;
+  background: #f4f8fd;
+}
+.content-read-controls legend {
+  font-weight: 700;
+  padding: 0 6px;
+}
+.read-mode-options {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 12px;
+  margin: 8px 0;
+}
+.service-tools .read-mode-options > label {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  align-items: center;
+  column-gap: 8px;
+  border: 1px solid #ced9e7;
+  background: white;
+  padding: 12px;
+  border-radius: 6px;
+  cursor: pointer;
+}
+.read-mode-options > label:has(input:checked) {
+  border-color: #3976c7;
+  background: #ecf3ff;
+}
+.read-mode-options input[type="radio"] {
+  width: auto;
+  margin: 0;
+}
+.read-mode-options label span {
+  grid-column: 2;
+  color: #64748b;
+  font-size: 11px;
+}
+.read-range-fields {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 12px;
+  margin: 14px 0 8px;
+}
+.read-request-preview {
+  font-size: 12px;
+  line-height: 1.9;
+  overflow-wrap: anywhere;
+  margin: 8px 0 0;
+}
+.read-limit-presets {
+  font-size: 12px;
+}
+.service-tools .read-limit-presets button {
+  padding: 4px 8px;
+}
+.reading-comparison {
+  padding: 16px;
+  margin: 16px 0;
+  border: 1px solid #dbe3ed;
+  border-radius: 8px;
+  background: #f8fafc;
+  overflow-wrap: anywhere;
+}
+.reading-comparison h3 {
+  font-size: 16px;
+}
+.reading-comparison .read-mode-options > div {
+  background: white;
+  padding: 14px;
+  border: 1px solid #dbe3ed;
+  border-radius: 6px;
+}
+.reading-comparison p {
+  font-size: 12px;
+  line-height: 1.8;
+  margin: 8px 0;
+}
+@media (max-width: 600px) {
+  .read-mode-options,
+  .read-range-fields {
+    grid-template-columns: 1fr;
+  }
+}

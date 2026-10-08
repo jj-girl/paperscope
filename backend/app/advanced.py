@@ -44,6 +44,8 @@ class ToolInput(BaseModel):
     group: Literal["year", "type", "institution", "topic"] = "year"
     kind: str = Field(default="", max_length=60)
     offset: int = Field(default=0, ge=0, le=10000000)
+    read_mode: Literal["segment", "full"] = "segment"
+    content_limit: int = Field(default=5000, ge=1, le=50000)
     options: dict = Field(default_factory=dict)
     webenv: str = Field(default="", max_length=4096)
     query_key: str = Field(default="", max_length=100)
@@ -749,15 +751,14 @@ async def sciverse_tool(operation, body, request, client):
             json={"query": required(body.query, "研究问题"), "top_k": body.size, **body.options},
         )
     elif operation == "content":
+        params = {"doc_id": required(body.record_id, "doc_id")}
+        if body.read_mode == "segment":
+            params.update(offset=body.offset, limit=body.content_limit)
         data = await get_json(
             client,
             base + "/content",
             headers=headers,
-            params={
-                "doc_id": required(body.record_id, "doc_id"),
-                "offset": body.offset,
-                "limit": 5000,
-            },
+            params=params,
         )
     elif operation == "meta_relations":
         if body.kind not in {"CITATIONS", "REFERENCES", "RELATED_WORKS"}:
@@ -778,6 +779,26 @@ async def sciverse_tool(operation, body, request, client):
         raise HTTPException(404, "未定义的 Sciverse 操作。")
     if data.get("biz_code") not in {None, 0}:
         raise HTTPException(502, "Sciverse 返回业务错误，请检查参数、权限与账户额度。")
+    if operation == "content":
+        text = data.get("text")
+        if not isinstance(text, str):
+            raise HTTPException(502, "原文接口没有返回有效文本。")
+        return result(
+            "structured",
+            data=clean(data, key),
+            reading={
+                "mode": body.read_mode,
+                "doc_id": body.record_id,
+                "offset": body.offset if body.read_mode == "segment" else None,
+                "limit": body.content_limit if body.read_mode == "segment" else None,
+                "chars_received": len(text),
+                "more": data.get("more") if isinstance(data.get("more"), bool) else None,
+            },
+            next_offset=data.get("next_offset")
+            if body.read_mode == "segment" and data.get("more") is True
+            else None,
+            note="返回原文文本；读取模式和实际返回量见下方结果。",
+        )
     if operation in {"metadata", "evidence"}:
         records = data.get("results" if operation == "metadata" else "hits", [])
         items = [

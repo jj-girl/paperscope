@@ -428,3 +428,65 @@ def test_review_draft_rejects_citations_outside_the_catalog(client):
         },
     )
     assert response.status_code == 502
+
+
+@respx.mock
+def test_content_full_mode_omits_slice_parameters_and_counts_unicode(client):
+    client.app.state.sciverse_store = SciverseConfigStore(
+        client.app.state.literature_config, SciverseConnection(api_key=SecretStr("sciverse-test"))
+    )
+    route = respx.get("https://api.sciverse.space/content").respond(
+        json={"text": "中😀A", "more": False}
+    )
+    response = post(
+        client,
+        "sciverse",
+        "content",
+        record_id="doc1",
+        read_mode="full",
+        offset=50,
+        content_limit=700,
+    )
+    assert response.status_code == 200
+    assert dict(route.calls.last.request.url.params) == {"doc_id": "doc1"}
+    assert response.json()["reading"] == {
+        "mode": "full",
+        "doc_id": "doc1",
+        "offset": None,
+        "limit": None,
+        "chars_received": 3,
+        "more": False,
+    }
+    assert response.json()["next_offset"] is None
+    route.respond(json={"text": "Partial", "more": True, "next_offset": 7})
+    response = post(client, "sciverse", "content", record_id="doc1", read_mode="full")
+    assert response.json()["reading"]["more"] is True
+    assert response.json()["next_offset"] is None
+
+
+@respx.mock
+def test_content_segment_mode_uses_user_range_and_validates_limits(client):
+    client.app.state.sciverse_store = SciverseConfigStore(
+        client.app.state.literature_config, SciverseConnection(api_key=SecretStr("sciverse-test"))
+    )
+    route = respx.get("https://api.sciverse.space/content").respond(
+        json={"text": "segment", "more": True, "next_offset": 707}
+    )
+    response = post(client, "sciverse", "content", record_id="doc1", offset=7, content_limit=700)
+    assert dict(route.calls.last.request.url.params) == {
+        "doc_id": "doc1",
+        "offset": "7",
+        "limit": "700",
+    }
+    assert response.json()["reading"]["mode"] == "segment"
+    assert response.json()["reading"]["chars_received"] == 7
+    assert response.json()["next_offset"] == 707
+    assert (
+        post(client, "sciverse", "content", record_id="doc1", content_limit=50001).status_code
+        == 422
+    )
+    assert (
+        post(client, "sciverse", "content", record_id="doc1", read_mode="invalid").status_code
+        == 422
+    )
+    assert route.call_count == 1

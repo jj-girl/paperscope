@@ -6,6 +6,11 @@ import SharedAi from "./SharedAi";
 import { localFetch } from "./localFetch";
 import "./service-tools.css";
 import "./content-access.css";
+import {
+  ContentReadControls,
+  ReadingHistory,
+  type ReadingInfo,
+} from "./ContentReadControls";
 import { operationContent } from "./contentAccess";
 import { apiExample, fieldHelp } from "./apiExamples";
 import {
@@ -15,6 +20,7 @@ import {
 } from "./ArticleContent";
 
 type ToolResult = {
+  reading?: ReadingInfo;
   view: string;
   items: Record<string, unknown>[];
   total?: number;
@@ -204,7 +210,7 @@ function ResultView({
     typeof data.data?.text === "string"
       ? data.data.text
       : null;
-  const customBody = paragraphs || segments || passage;
+  const customBody = paragraphs || segments || passage !== null;
   const max = Math.max(1, ...data.items.map((x) => Number(x.count) || 0));
   return (
     <div className="tools-result">
@@ -249,12 +255,38 @@ function ResultView({
           下载原始全文 XML
         </a>
       )}
-      {passage && (
+      {passage !== null && (
         <section className="content-reader">
-          <h3>已取回原文片段 · 非整篇全文</h3>
-          <p>当前为按 offset 读取的一段文本；还有下一段时可继续读取。</p>
+          <h3>
+            {data.reading?.mode === "full"
+              ? "全文模式 · 原文返回结果"
+              : "片段模式 · 原文返回结果"}
+          </h3>
+          {data.reading && (
+            <p>
+              实际返回{" "}
+              <strong>{data.reading.chars_received.toLocaleString()}</strong> 个
+              Unicode 字符。
+              {data.reading.mode === "full"
+                ? "本次只发送 doc_id，没有发送 offset / limit。"
+                : `本次从位置 ${data.reading.offset} 开始，请求最多 ${data.reading.limit} 字符。`}
+            </p>
+          )}
+          {data.reading?.more === true && (
+            <p className="source-notice">
+              {data.reading.mode === "full"
+                ? "虽然请求了全文，服务仍提示有后续内容，本次不能视为完整全文。可切换到片段模式按返回的 next_offset 继续。"
+                : "服务提示还有后续内容，可点击“读取下一页”继续。"}
+            </p>
+          )}
+          {data.reading?.more === false && (
+            <p>服务标记 more=false：本次返回之后没有后续内容。</p>
+          )}
+          {data.reading?.more === null && (
+            <p>服务未提供 more 标记，不能据此确认原文是否完整。</p>
+          )}
           <div className="content-reader-body">
-            <p>{passage}</p>
+            {passage ? <p>{passage}</p> : <p>未返回原文文本。</p>}
           </div>
         </section>
       )}
@@ -398,6 +430,10 @@ export default function ServiceTools({
   }
   const spec = operations.find((o) => o.id === operation)!;
   const example = apiExample(provider, operation);
+  const isContent = provider === "sciverse" && operation === "content";
+  const [readHistory, setReadHistory] = useState<
+    Partial<Record<"full" | "segment", ReadingInfo>>
+  >({});
   const [values, setValues] = useState<Record<string, string>>({});
   const [data, setData] = useState<ToolResult | null>(null);
   const [error, setError] = useState("");
@@ -422,6 +458,7 @@ export default function ServiceTools({
     active.current?.abort();
     setBusy(false);
     setData(null);
+    setReadHistory({});
     setError("");
     setTeiText([]);
     setDownloadUrl(null);
@@ -498,6 +535,10 @@ export default function ServiceTools({
                       : values[f.key],
             ]),
         );
+      if (isContent && body.read_mode === "full") {
+        delete body.offset;
+        delete body.content_limit;
+      }
       savedRequest.current = body;
       let path = `/api/advanced/${provider}/${operation}`;
       if (spec.basicSearch) path = `/api/literature/${provider}/search`;
@@ -578,6 +619,16 @@ export default function ServiceTools({
               : { view: "papers", items: value.papers || [], note: value.note };
         if (!controller.signal.aborted) {
           setData(value);
+          if (isContent && value.reading) {
+            const reading = value.reading as ReadingInfo;
+            setReadHistory((previous) => {
+              const prior = previous.full || previous.segment;
+              return {
+                ...(prior?.doc_id === reading.doc_id ? previous : {}),
+                [reading.mode]: reading,
+              };
+            });
+          }
           if (
             provider === "elicit" &&
             ["report", "review", "agent"].includes(operation) &&
@@ -769,53 +820,66 @@ export default function ServiceTools({
         )}
       </section>
       <form onSubmit={run} className="tools-form">
-        {spec.fields.map((f) => (
-          <label key={f.key}>
-            {f.label}
-            <small className="source-muted">
-              {fieldHelp(provider, operation, f.key)}
-            </small>
-            {f.type === "select" ? (
-              <select
-                aria-label={f.label}
-                value={values[f.key] || ""}
-                onChange={(e) =>
-                  setValues((v) => ({ ...v, [f.key]: e.target.value }))
-                }
-              >
-                {f.options?.map(([v, l]) => (
-                  <option key={v} value={v}>
-                    {l}
-                  </option>
-                ))}
-              </select>
-            ) : ["textarea", "ids", "numbers", "json"].includes(
-                f.type || "",
-              ) ? (
-              <textarea
-                aria-label={f.label}
-                value={values[f.key] || ""}
-                required={f.required}
-                rows={f.type === "json" ? 5 : 3}
-                onChange={(e) =>
-                  setValues((v) => ({ ...v, [f.key]: e.target.value }))
-                }
-              />
-            ) : (
-              <input
-                aria-label={f.label}
-                type={f.type === "number" ? "number" : "text"}
-                min={f.min}
-                max={f.max}
-                value={values[f.key] || ""}
-                required={f.required}
-                onChange={(e) =>
-                  setValues((v) => ({ ...v, [f.key]: e.target.value }))
-                }
-              />
-            )}
-          </label>
-        ))}
+        {isContent && (
+          <ContentReadControls
+            values={values}
+            busy={busy}
+            onChange={(update) => setValues((v) => ({ ...v, ...update }))}
+          />
+        )}
+        {spec.fields
+          .filter(
+            (f) =>
+              !isContent ||
+              !["read_mode", "offset", "content_limit"].includes(f.key),
+          )
+          .map((f) => (
+            <label key={f.key}>
+              {f.label}
+              <small className="source-muted">
+                {fieldHelp(provider, operation, f.key)}
+              </small>
+              {f.type === "select" ? (
+                <select
+                  aria-label={f.label}
+                  value={values[f.key] || ""}
+                  onChange={(e) =>
+                    setValues((v) => ({ ...v, [f.key]: e.target.value }))
+                  }
+                >
+                  {f.options?.map(([v, l]) => (
+                    <option key={v} value={v}>
+                      {l}
+                    </option>
+                  ))}
+                </select>
+              ) : ["textarea", "ids", "numbers", "json"].includes(
+                  f.type || "",
+                ) ? (
+                <textarea
+                  aria-label={f.label}
+                  value={values[f.key] || ""}
+                  required={f.required}
+                  rows={f.type === "json" ? 5 : 3}
+                  onChange={(e) =>
+                    setValues((v) => ({ ...v, [f.key]: e.target.value }))
+                  }
+                />
+              ) : (
+                <input
+                  aria-label={f.label}
+                  type={f.type === "number" ? "number" : "text"}
+                  min={f.min}
+                  max={f.max}
+                  value={values[f.key] || ""}
+                  required={f.required}
+                  onChange={(e) =>
+                    setValues((v) => ({ ...v, [f.key]: e.target.value }))
+                  }
+                />
+              )}
+            </label>
+          ))}
         {provider === "openalex" && (
           <div className="tools-quick-links">
             {(operation.startsWith("author")
@@ -924,6 +988,7 @@ export default function ServiceTools({
             ]}
           />
         )}
+      {isContent && <ReadingHistory history={readHistory} />}
       {data && (
         <>
           <div className="tools-result-actions">

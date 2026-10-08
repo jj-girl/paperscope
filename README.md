@@ -23,6 +23,8 @@ Every operation now has RSI parameter examples and field help. Results distingui
 
 Metadata, full text and structured extraction have different coverage. Provider-side retrieval and precomputed extraction are distinguished from generation. Missing data is not invented, and identifiers are not interchangeable.
 
+Sciverse text reading now offers full and segment modes with explicit request parameters and per-document return-size comparison. See [content reading modes](docs/CONTENT_READ_MODES.md).
+
 ## Quick start
 
 Requirements: Python 3.11+ (3.12 recommended), [uv](https://docs.astral.sh/uv/), Node.js 22.12+ or 24+, npm and make.

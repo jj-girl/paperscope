@@ -17,7 +17,7 @@ Sciverse 的元数据、正文与 Paper Schema 是不同覆盖范围。材料包
 | list_catalog | GET /meta-catalog | 查看字段目录 |
 | search_papers | POST /meta-search | 查询文献元数据 |
 | semantic_search | POST /agentic-search | 搜索原文片段 |
-| read_content | GET /content | 按 doc_id 读取原文，当前界面分段获取 |
+| read_content | GET /content | 按 doc_id 读取原文，当前界面可切换全文 / 片段 |
 | get_resource | GET /resource | 获取原文引用的图片或附件 |
 | list_paper_relations | POST /meta-paper-relations | 读取论文关联 |
 
@@ -40,7 +40,7 @@ Sciverse 的元数据、正文与 Paper Schema 是不同覆盖范围。材料包
 
 | 服务 | 收录来源 | 记录与全文规模 | 本应用全文边界 |
 | --- | --- | --- | --- |
-| Sciverse | 已用官方 API 核实：sources 来源对象使用 OpenAlex 标识与查询链接；抽样 RSI 论文的原文位置指向 arXiv。完整上游采集名单和各源收录比例仍未确认。 | 学术文献：**3.74 亿（官网展示值）**；Sciverse 官方平台，更新于 2026 年 10 月。 [依据](https://sciverse.opendatalab.com/)<br>AI-Ready 全文：**3071 万（官网展示值）**；官网全文口径，不能等同于 OA 授权数量，也不代表每个账户可获取全部文件。 [依据](https://sciverse.opendatalab.com/)<br>OA 标记文献：**尚无法确认精确总量**；实测 meta-search 的 access_is_oa=true 仅报告 total_count=10,000；不将该值当作全库 OA 总量。 [依据](https://sciverse.opendatalab.com/docs/sciverse/api/meta-search)<br>Paper Schema 子库：**100 万+（官方 API）**；实测 GET /paper-schema 返回 coverage.paper_count=1M+、current_focus=AI conference papers。 [依据](https://sciverse.opendatalab.com/docs/sciverse/api/paper-schema) | 原文片段与出处段落。可以按 doc_id 读取文本、按 Schema 出处回查段落。元数据命中不保证正文可取，结构材料包也不是整篇全文。 |
+| Sciverse | 已用官方 API 核实：sources 来源对象使用 OpenAlex 标识与查询链接；抽样 RSI 论文的原文位置指向 arXiv。完整上游采集名单和各源收录比例仍未确认。 | 学术文献：**3.74 亿（官网展示值）**；Sciverse 官方平台，更新于 2026 年 10 月。 [依据](https://sciverse.opendatalab.com/)<br>AI-Ready 全文：**3071 万（官网展示值）**；官网全文口径，不能等同于 OA 授权数量，也不代表每个账户可获取全部文件。 [依据](https://sciverse.opendatalab.com/)<br>OA 标记文献：**尚无法确认精确总量**；实测 meta-search 的 access_is_oa=true 仅报告 total_count=10,000；不将该值当作全库 OA 总量。 [依据](https://sciverse.opendatalab.com/docs/sciverse/api/meta-search)<br>Paper Schema 子库：**100 万+（官方 API）**；实测 GET /paper-schema 返回 coverage.paper_count=1M+、current_focus=AI conference papers。 [依据](https://sciverse.opendatalab.com/docs/sciverse/api/paper-schema) | 全文 / 片段与出处段落。可以按 doc_id 一次请求全文或按范围读取片段；Schema 出处接口用于回查定位段落。元数据命中不保证正文可取，结构材料包也不是整篇全文。 |
 | PubMed | 主要由 MEDLINE 的期刊书目、PubMed Central（PMC）文章的书目，以及 NCBI Bookshelf 的书籍和章节引用组成。 | 书目记录：**41,256,727**；2026-10-08，官方 EInfo 的 pubmed count。 [依据](https://eutils.ncbi.nlm.nih.gov/entrez/eutils/einfo.fcgi?db=pubmed&retmode=json)<br>带免费全文入口的记录：**14,875,462**；同日 ESearch: free full text[sb]。免费可读不等于 OA 授权，也不等于本接口返回正文。 [依据](https://eutils.ncbi.nlm.nih.gov/entrez/eutils/esearch.fcgi?db=pubmed&retmode=json&retmax=0&term=free%20full%20text%5Bsb%5D)<br>本接口直接返回期刊全文：**不提供**；通过外部出版社或 PMC 链接阅读；OA 精确总量未单独确认。 [依据](https://pubmed.ncbi.nlm.nih.gov/about/) | 摘要与外部全文链接。当前 PubMed E-utilities 不返回期刊文章全文。即使有 PMCID，也只提供 PMC 跳转，不在本来源中自动读取全文。 |
 | Europe PMC | 汇集 PubMed 摘要、大部分 PMC 全文，以及预印本、Agricola 农业书目、部分欧洲专利和临床指南。与 PubMed/PMC 大量重叠。 | 索引记录：**49,008,535**；2026-10-08 API 查询 EXT_ID:*；包含不同文献类型和版本。 [依据](https://www.ebi.ac.uk/europepmc/webservices/rest/search?query=EXT_ID%3A*&format=json&pageSize=1&resultType=idlist)<br>库内全文记录：**12,409,642**；同日 IN_EPMC:y 命中数；不等于 XML 下载数。 [依据](https://www.ebi.ac.uk/europepmc/webservices/rest/search?query=IN_EPMC%3Ay&format=json&pageSize=1&resultType=idlist)<br>OA 标记记录：**8,316,655**；同日 OPEN_ACCESS:y；不代表已逐篇验证 XML 获取成功。 [依据](https://www.ebi.ac.uk/europepmc/webservices/rest/search?query=OPEN_ACCESS%3Ay&format=json&pageSize=1&resultType=idlist) | 部分记录可直接读全文 XML。仅符合开放全文条件的记录可通过 fullTextXML 取正文。结果卡标出读取条件；读取成功后展示正文段落，并可保存原始 XML。 |
 | OpenAlex | 继承 Microsoft Academic Graph 的历史数据，并持续整合 Crossref、DataCite、PubMed、HAL 和其他开放仓储中的学术记录。 | 学术作品记录：**331,133,838**；2026-10-08 10:30 UTC，GET /works 返回 meta.count；默认核心语料。 [依据](https://api.openalex.org/works?per_page=1&select=id)<br>OA 标记作品：**130,063,375**；同次统计，filter=is_oa:true；不等于 Content API 文件数量。 [依据](https://api.openalex.org/works?per_page=1&select=id&filter=is_oa:true)<br>有 PDF 内容的作品：**55,345,545**；同次统计，filter=has_content.pdf:true。 [依据](https://api.openalex.org/works?per_page=1&select=id&filter=has_content.pdf:true)<br>有 TEI XML 的作品：**52,966,359**；同次统计，filter=has_content.grobid_xml:true；与 PDF 集合重叠，不相加。 [依据](https://api.openalex.org/works?per_page=1&select=id&filter=has_content.grobid_xml:true) | 部分记录可下载 PDF / TEI XML。按每篇记录的 has_content 判断格式；只有 OA 标记或外部 PDF 链接还不够。Content API 需要 Key，下载成功后才显示预览。 |
@@ -62,7 +62,7 @@ unique_id 标识元数据；doc_id 用于正文；schema_id 用于结构化论�
 | 通用元数据检索（search_papers） | `POST /meta-search` | query 或 filters；collection、fields、sort、page/cursor | results 元数据、unique_id；有全文时可能有 doc_id | 元数据记录 | 数据读取，无需本地 LLM |
 | 元数据字段目录（list_catalog） | `GET /meta-catalog` | collection: papers/authors/sources | 字段类型、过滤/排序/投影能力 | 字段定义 | 数据读取，无需本地 LLM |
 | 语义证据片段检索（semantic_search） | `POST /agentic-search` | 自然语言 query、top_k、可选 filters | hits: chunk、doc_id、offset、页码及元数据 | 文本片段 | 服务端检索模型；无需本地 LLM |
-| 读取论文原文（read_content） | `GET /content` | doc_id、offset、limit（字符） | text、next_offset、more；不是 Schema 对象 | 正文片段 | 数据读取，无需本地 LLM |
+| 读取论文原文（read_content） | `GET /content` | doc_id；片段模式另传 offset / limit（Unicode 字符），全文模式省略二者 | text、next_offset、more；不是 Schema 对象 | 原文全文 / 片段 | 数据读取，无需本地 LLM |
 | 图表与附件获取（get_resource） | `GET /resource` | 原文返回的安全相对 file_name | 图像/PDF 等二进制文件 | 文件 | 数据读取，无需本地 LLM |
 | 元数据论文引用与相关关系（list_paper_relations） | `POST /meta-paper-relations` | unique_id、relation、page/page_size | 库内引用/被引/相关工作记录与计数 | 论文关联 | 数据读取，无需本地 LLM |
 | 结构化数据定义与分类 | `GET /paper-schema` | 数据 Token，无检索参数 | 接口版本、资源、分类与限额 | 能力说明 | 供应方预处理结果；无需本地 LLM |

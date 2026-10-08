@@ -437,10 +437,35 @@ export const SERVICE_OPERATIONS: Record<string, ServiceOperation[]> = {
     {
       id: "content",
       title: "读取论文原文（read_content）",
-      help: "官方工具名 read_content，对应 GET /content。使用检索返回的 doc_id 读取原文；本页每次读取 5,000 字符，有后续内容时可继续读取。",
+      help: "直接调用 GET /content。片段模式发送 offset 和 limit；全文模式仅发送 doc_id。不会调用 SDK 默认参数或 LLM。",
       fields: [
         record("doc_id"),
-        { key: "offset", label: "起始字符位置", type: "number", value: "0" },
+        {
+          key: "read_mode",
+          label: "读取模式",
+          type: "select",
+          value: "segment",
+          options: [
+            ["segment", "片段读取"],
+            ["full", "全文读取"],
+          ],
+        },
+        {
+          key: "offset",
+          label: "起始字符位置",
+          type: "number",
+          value: "0",
+          min: 0,
+          max: 10000000,
+        },
+        {
+          key: "content_limit",
+          label: "片段长度（Unicode 字符）",
+          type: "number",
+          value: "5000",
+          min: 1,
+          max: 50000,
+        },
       ],
       needsKey: true,
     },

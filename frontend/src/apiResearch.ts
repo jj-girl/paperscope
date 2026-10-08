@@ -514,12 +514,12 @@ export const API_CONTRACTS: Record<string, Record<string, ApiContract>> = {
     ),
     content: c(
       ["GET /content"],
-      "doc_id、offset、limit（字符）",
+      "doc_id；片段模式另传 offset / limit（Unicode 字符），全文模式省略二者",
       "text、next_offset、more；不是 Schema 对象",
-      "正文片段",
+      "原文全文 / 片段",
       "全文与资源",
       "data",
-      "官方 Skills / SDK 工具名为 read_content；本应用直接调用 GET /content，默认分段读取并沿 next_offset 继续。",
+      "官方 Skills / SDK 工具名为 read_content；本应用直接调用 GET /content，可选全文或片段模式；片段沿 next_offset 继续。",
     ),
     resource: c(
       ["GET /resource"],

@@ -131,3 +131,123 @@ it("shares model analysis but does not claim full-text verification", async () =
     "/api/shared-ai/analyze",
   );
 });
+
+it("switches content parameters without requests, compares actual modes and keeps response labels stable", async () => {
+  vi.stubGlobal(
+    "fetch",
+    vi.fn(async (_path, init) => {
+      const body = JSON.parse(String(init?.body));
+      const full = body.read_mode === "full";
+      return json({
+        view: "structured",
+        items: [],
+        data: {
+          text: full ? "Complete source text" : "A source slice",
+          more: !full,
+        },
+        next_offset: full ? null : 720,
+        reading: {
+          mode: full ? "full" : "segment",
+          doc_id: body.record_id,
+          offset: full ? null : body.offset,
+          limit: full ? null : body.content_limit,
+          chars_received: full ? 20000 : 700,
+          more: !full,
+        },
+      });
+    }),
+  );
+  render(
+    <ServiceTools
+      provider="sciverse"
+      query="RSI"
+      configured
+      onSettings={() => {}}
+    />,
+  );
+  fireEvent.change(screen.getByLabelText("选择接口功能"), {
+    target: { value: "content" },
+  });
+  fireEvent.change(screen.getByLabelText("doc_id"), {
+    target: { value: "doc1" },
+  });
+  fireEvent.change(screen.getByLabelText("原文起始字符位置"), {
+    target: { value: "20" },
+  });
+  fireEvent.change(screen.getByLabelText("原文片段长度"), {
+    target: { value: "700" },
+  });
+  expect(fetch).not.toHaveBeenCalled();
+  fireEvent.click(screen.getByRole("button", { name: "运行此功能" }));
+  await screen.findByText("A source slice", { selector: "p" });
+  expect(
+    JSON.parse(String(vi.mocked(fetch).mock.calls[0][1]?.body)),
+  ).toMatchObject({ read_mode: "segment", offset: 20, content_limit: 700 });
+  fireEvent.click(screen.getByRole("radio", { name: /全文读取/ }));
+  expect(fetch).toHaveBeenCalledTimes(1);
+  expect(screen.queryByLabelText("原文起始字符位置")).not.toBeInTheDocument();
+  expect(
+    screen.getByRole("heading", { name: "片段模式 · 原文返回结果" }),
+  ).toBeInTheDocument();
+  fireEvent.click(screen.getByRole("button", { name: "运行此功能" }));
+  await screen.findByText("Complete source text", { selector: "p" });
+  const sent = JSON.parse(String(vi.mocked(fetch).mock.calls[1][1]?.body));
+  expect(sent.read_mode).toBe("full");
+  expect(sent).not.toHaveProperty("offset");
+  expect(sent).not.toHaveProperty("content_limit");
+  expect(
+    screen.getByRole("heading", { name: "全文模式 · 原文返回结果" }),
+  ).toBeInTheDocument();
+  expect(screen.getByLabelText("同一文档读取方式对照")).toHaveTextContent(
+    "20,000",
+  );
+  expect(screen.getByLabelText("同一文档读取方式对照")).toHaveTextContent(
+    "700",
+  );
+  expect(
+    screen.queryByRole("button", { name: "读取下一页" }),
+  ).not.toBeInTheDocument();
+});
+
+it("does not mark a full request complete when the provider reports more content", async () => {
+  vi.stubGlobal(
+    "fetch",
+    vi.fn(async () =>
+      json({
+        view: "structured",
+        items: [],
+        data: { text: "Still partial", more: true, next_offset: 10 },
+        reading: {
+          mode: "full",
+          doc_id: "doc1",
+          offset: null,
+          limit: null,
+          chars_received: 10,
+          more: true,
+        },
+      }),
+    ),
+  );
+  render(
+    <ServiceTools
+      provider="sciverse"
+      query="RSI"
+      configured
+      onSettings={() => {}}
+    />,
+  );
+  fireEvent.change(screen.getByLabelText("选择接口功能"), {
+    target: { value: "content" },
+  });
+  fireEvent.change(screen.getByLabelText("doc_id"), {
+    target: { value: "doc1" },
+  });
+  fireEvent.click(screen.getByRole("radio", { name: /全文读取/ }));
+  fireEvent.click(screen.getByRole("button", { name: "运行此功能" }));
+  expect(
+    await screen.findByText(/虽然请求了全文，服务仍提示有后续内容/),
+  ).toBeInTheDocument();
+  expect(
+    screen.queryByText(/本次返回之后没有后续内容/),
+  ).not.toBeInTheDocument();
+});

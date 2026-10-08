@@ -45,6 +45,8 @@ export function apiExample(source: string, op: string): ApiExample {
         record_id:
           "675c3be456e605b07e515c6d52bb4244b0f22de4c32b5f4d11864a91f2c6a602",
         offset: "0",
+        read_mode: "segment",
+        content_limit: "5000",
       },
       resource: {
         record_id:

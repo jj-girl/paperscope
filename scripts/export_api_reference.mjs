@@ -60,7 +60,7 @@ const lines = [
   "| list_catalog | GET /meta-catalog | 查看字段目录 |",
   "| search_papers | POST /meta-search | 查询文献元数据 |",
   "| semantic_search | POST /agentic-search | 搜索原文片段 |",
-  "| read_content | GET /content | 按 doc_id 读取原文，当前界面分段获取 |",
+  "| read_content | GET /content | 按 doc_id 读取原文，当前界面可切换全文 / 片段 |",
   "| get_resource | GET /resource | 获取原文引用的图片或附件 |",
   "| list_paper_relations | POST /meta-paper-relations | 读取论文关联 |",
   "",

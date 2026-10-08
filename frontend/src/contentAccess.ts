@@ -69,6 +69,13 @@ export function operationContent(
   operation: string,
 ): ContentBoundary {
   if (source === "sciverse") {
+    if (operation === "content")
+      return {
+        kind: "fulltext",
+        label: "原文读取 · 全文 / 片段可切换",
+        detail:
+          "全文模式不发送 offset / limit；片段模式按所填位置与长度读取。结果分别标明请求模式、实际返回字符数及是否仍有后续内容。",
+      };
     if (
       [
         "content",

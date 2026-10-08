@@ -20,7 +20,7 @@ PaperScope 用同一个网页探索 **Sciverse、PubMed、Europe PMC、OpenAlex�
 
 | 来源 | 不调用应用侧 LLM 时的主要工作 |
 | --- | --- |
-| Sciverse | 元数据、正文片段、Schema 实体关系、证据、出处回查、引用和结构材料包 |
+| Sciverse | 元数据、原文全文/片段、Schema 实体关系、证据、出处回查、引用和结构材料包 |
 | PubMed | 生物医学书目、摘要、MeSH、筛选、关联 ID、检索历史集合与批量读取 |
 | Europe PMC | 生命科学记录、可获取的开放全文 XML、实体标注、引用和数据库链接 |
 | OpenAlex | 跨学科学术对象、完整查询聚合、作者机构与引用探索、部分 PDF/TEI 文件 |
@@ -28,6 +28,8 @@ PaperScope 用同一个网页探索 **Sciverse、PubMed、Europe PMC、OpenAlex�
 | Elicit | 论文检索、已有任务状态及产物；生成任务默认禁用 |
 
 元数据命中不保证有全文；全文存在不保证有 Schema。Sciverse 的 `unique_id`、`doc_id`、`schema_id` 不可互换。供应方预先抽取的结构、服务端检索模型与本应用调用 LLM 是不同层次，界面分别标明。
+
+Sciverse 原文读取新增参数条：选择全文或片段，片段可设置位置和长度；结果按同一文档对照实际返回量。见 [全文与片段读取](docs/CONTENT_READ_MODES.md)。
 
 ## 安装运行
 
