@@ -518,6 +518,8 @@ export const API_CONTRACTS: Record<string, Record<string, ApiContract>> = {
       "text、next_offset、more；不是 Schema 对象",
       "正文片段",
       "全文与资源",
+      "data",
+      "官方 Skills / SDK 工具名为 read_content；本应用直接调用 GET /content，默认分段读取并沿 next_offset 继续。",
     ),
     resource: c(
       ["GET /resource"],

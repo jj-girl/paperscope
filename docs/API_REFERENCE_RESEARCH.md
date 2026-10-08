@@ -8,6 +8,21 @@
 
 Sciverse 的元数据、正文与 Paper Schema 是不同覆盖范围。材料包是按目标选取已有结构，不是自动生成的综述。返回的 unique_id、doc_id 和 schema_id 不能直接互换。
 
+## Sciverse 工具名与 HTTP 接口对照
+
+界面同时标明官方工具名与 HTTP 路径。read_content 已接入，先前称为“原文上下文读取”；名称不同不代表缺少该功能。
+
+| 官方工具名 | HTTP 接口 | 本应用用途 |
+| --- | --- | --- |
+| list_catalog | GET /meta-catalog | 查看字段目录 |
+| search_papers | POST /meta-search | 查询文献元数据 |
+| semantic_search | POST /agentic-search | 搜索原文片段 |
+| read_content | GET /content | 按 doc_id 读取原文，当前界面分段获取 |
+| get_resource | GET /resource | 获取原文引用的图片或附件 |
+| list_paper_relations | POST /meta-paper-relations | 读取论文关联 |
+
+官方依据：[Skills / SDK 工具名](https://sciverse.opendatalab.com/docs/sciverse/skills)、[content HTTP 接口](https://sciverse.opendatalab.com/docs/sciverse/api/content)、[供应商工具清单](https://github.com/opendatalab/Sciverse-Agent-Tools)。当前实现使用 HTTP 接口，不要求安装 SDK 或配置 LLM。
+
 ## 数据库范围对照
 
 | 服务 | 数据库范围 | 数据粒度 | 主要边界 |
@@ -44,12 +59,12 @@ unique_id 标识元数据；doc_id 用于正文；schema_id 用于结构化论�
 
 | 按钮/操作 | 原生 API 名称 | 输入 | 输出 | 数据粒度 | 模型依赖 |
 | --- | --- | --- | --- | --- | --- |
-| 通用元数据检索 | `POST /meta-search` | query 或 filters；collection、fields、sort、page/cursor | results 元数据、unique_id；有全文时可能有 doc_id | 元数据记录 | 数据读取，无需本地 LLM |
-| 元数据字段目录 | `GET /meta-catalog` | collection: papers/authors/sources | 字段类型、过滤/排序/投影能力 | 字段定义 | 数据读取，无需本地 LLM |
-| 语义证据片段检索 | `POST /agentic-search` | 自然语言 query、top_k、可选 filters | hits: chunk、doc_id、offset、页码及元数据 | 文本片段 | 服务端检索模型；无需本地 LLM |
-| 原文上下文读取 | `GET /content` | doc_id、offset、limit（字符） | text、next_offset、more；不是 Schema 对象 | 正文片段 | 数据读取，无需本地 LLM |
-| 图表与附件获取 | `GET /resource` | 原文返回的安全相对 file_name | 图像/PDF 等二进制文件 | 文件 | 数据读取，无需本地 LLM |
-| 元数据论文引用与相关关系 | `POST /meta-paper-relations` | unique_id、relation、page/page_size | 库内引用/被引/相关工作记录与计数 | 论文关联 | 数据读取，无需本地 LLM |
+| 通用元数据检索（search_papers） | `POST /meta-search` | query 或 filters；collection、fields、sort、page/cursor | results 元数据、unique_id；有全文时可能有 doc_id | 元数据记录 | 数据读取，无需本地 LLM |
+| 元数据字段目录（list_catalog） | `GET /meta-catalog` | collection: papers/authors/sources | 字段类型、过滤/排序/投影能力 | 字段定义 | 数据读取，无需本地 LLM |
+| 语义证据片段检索（semantic_search） | `POST /agentic-search` | 自然语言 query、top_k、可选 filters | hits: chunk、doc_id、offset、页码及元数据 | 文本片段 | 服务端检索模型；无需本地 LLM |
+| 读取论文原文（read_content） | `GET /content` | doc_id、offset、limit（字符） | text、next_offset、more；不是 Schema 对象 | 正文片段 | 数据读取，无需本地 LLM |
+| 图表与附件获取（get_resource） | `GET /resource` | 原文返回的安全相对 file_name | 图像/PDF 等二进制文件 | 文件 | 数据读取，无需本地 LLM |
+| 元数据论文引用与相关关系（list_paper_relations） | `POST /meta-paper-relations` | unique_id、relation、page/page_size | 库内引用/被引/相关工作记录与计数 | 论文关联 | 数据读取，无需本地 LLM |
 | 结构化数据定义与分类 | `GET /paper-schema` | 数据 Token，无检索参数 | 接口版本、资源、分类与限额 | 能力说明 | 供应方预处理结果；无需本地 LLM |
 | 检索结构化论文 | `POST /paper-schema/search` | query 或 filters、size/cursor | 论文 items[]、schema_id、贡献/问题等抽取字段 | 结构化论文 | 供应方预处理结果；无需本地 LLM |
 | 跨论文检索实体 | `POST /paper-schema/entities/search` | query 或 schema_ids 范围；分类 filters | Entity items[]、entity_id、provenance | 实体 | 供应方预处理结果；无需本地 LLM |

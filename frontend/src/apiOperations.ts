@@ -181,7 +181,7 @@ const operations: Record<string, ServiceOperation[]> = {
     ...sciverseGeneral.filter((o) => o.id !== "metadata"),
     {
       id: "meta_relations",
-      title: "元数据论文引用与相关关系",
+      title: "元数据论文引用与相关关系（list_paper_relations）",
       help: "使用 unique_id，不是 doc_id 或 schema_id。",
       needsKey: true,
       fields: [

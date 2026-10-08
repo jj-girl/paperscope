@@ -397,14 +397,14 @@ export const SERVICE_OPERATIONS: Record<string, ServiceOperation[]> = {
   sciverse: [
     {
       id: "catalog",
-      title: "元数据字段目录",
+      title: "元数据字段目录（list_catalog）",
       help: "先读取当前可过滤、排序和投影的字段合同。",
       fields: [],
       needsKey: true,
     },
     {
       id: "metadata",
-      title: "通用元数据检索",
+      title: "通用元数据检索（search_papers）",
       help: "返回元数据，不等同于 Paper Schema 或全文覆盖。过滤字段应先从字段目录确认。",
       fields: [
         query,
@@ -420,7 +420,7 @@ export const SERVICE_OPERATIONS: Record<string, ServiceOperation[]> = {
     },
     {
       id: "evidence",
-      title: "语义证据片段检索",
+      title: "语义证据片段检索（semantic_search）",
       help: "按问题返回证据片段与 doc_id；接口不生成最终答案。",
       fields: [
         query,
@@ -436,8 +436,8 @@ export const SERVICE_OPERATIONS: Record<string, ServiceOperation[]> = {
     },
     {
       id: "content",
-      title: "原文上下文读取",
-      help: "按检索返回的 doc_id 读取正文；每次 5,000 字符，可继续读取。",
+      title: "读取论文原文（read_content）",
+      help: "官方工具名 read_content，对应 GET /content。使用检索返回的 doc_id 读取原文；本页每次读取 5,000 字符，有后续内容时可继续读取。",
       fields: [
         record("doc_id"),
         { key: "offset", label: "起始字符位置", type: "number", value: "0" },
@@ -446,7 +446,7 @@ export const SERVICE_OPERATIONS: Record<string, ServiceOperation[]> = {
     },
     {
       id: "resource",
-      title: "图表与附件获取",
+      title: "图表与附件获取（get_resource）",
       help: "使用原文或接口返回的相对文件路径下载附件，不接受任意 URL。",
       fields: [record("相对 file_name（例如 从原文复制，不填任意 URL）")],
       download: "resource",

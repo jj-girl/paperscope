@@ -53,12 +53,12 @@
 
 | 功能及原生 API | 输入：提交什么 | 输出：返回什么 |
 | --- | --- | --- |
-| 通用元数据检索<br>`POST /meta-search` | query 或 filters；collection、fields、sort、page/cursor | results 元数据、unique_id；有全文时可能有 doc_id；返回单位：元数据记录 |
-| 元数据字段目录<br>`GET /meta-catalog` | collection: papers/authors/sources | 字段类型、过滤/排序/投影能力；返回单位：字段定义 |
-| 语义证据片段检索<br>`POST /agentic-search` | 自然语言 query、top_k、可选 filters | hits: chunk、doc_id、offset、页码及元数据；返回单位：文本片段 |
-| 原文上下文读取<br>`GET /content` | doc_id、offset、limit（字符） | text、next_offset、more；不是 Schema 对象；返回单位：正文片段 |
-| 图表与附件获取<br>`GET /resource` | 原文返回的安全相对 file_name | 图像/PDF 等二进制文件；返回单位：文件 |
-| 元数据论文引用与相关关系<br>`POST /meta-paper-relations` | unique_id、relation、page/page_size | 库内引用/被引/相关工作记录与计数；返回单位：论文关联 |
+| 通用元数据检索（search_papers）<br>`POST /meta-search` | query 或 filters；collection、fields、sort、page/cursor | results 元数据、unique_id；有全文时可能有 doc_id；返回单位：元数据记录 |
+| 元数据字段目录（list_catalog）<br>`GET /meta-catalog` | collection: papers/authors/sources | 字段类型、过滤/排序/投影能力；返回单位：字段定义 |
+| 语义证据片段检索（semantic_search）<br>`POST /agentic-search` | 自然语言 query、top_k、可选 filters | hits: chunk、doc_id、offset、页码及元数据；返回单位：文本片段 |
+| 读取论文原文（read_content）<br>`GET /content` | doc_id、offset、limit（字符） | text、next_offset、more；不是 Schema 对象；返回单位：正文片段 |
+| 图表与附件获取（get_resource）<br>`GET /resource` | 原文返回的安全相对 file_name | 图像/PDF 等二进制文件；返回单位：文件 |
+| 元数据论文引用与相关关系（list_paper_relations）<br>`POST /meta-paper-relations` | unique_id、relation、page/page_size | 库内引用/被引/相关工作记录与计数；返回单位：论文关联 |
 | 结构化数据定义与分类<br>`GET /paper-schema` | 数据 Token，无检索参数 | 接口版本、资源、分类与限额；返回单位：能力说明 |
 | 检索结构化论文<br>`POST /paper-schema/search` | query 或 filters、size/cursor | 论文 items[]、schema_id、贡献/问题等抽取字段；返回单位：结构化论文 |
 | 跨论文检索实体<br>`POST /paper-schema/entities/search` | query 或 schema_ids 范围；分类 filters | Entity items[]、entity_id、provenance；返回单位：实体 |
