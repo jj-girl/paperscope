@@ -5,6 +5,14 @@ import type { LiteraturePaper } from "./literatureTypes";
 import SharedAi from "./SharedAi";
 import { localFetch } from "./localFetch";
 import "./service-tools.css";
+import "./content-access.css";
+import { operationContent } from "./contentAccess";
+import { apiExample, fieldHelp } from "./apiExamples";
+import {
+  ArticleContent,
+  AnnotationCards,
+  ParagraphReader,
+} from "./ArticleContent";
 
 type ToolResult = {
   view: string;
@@ -171,7 +179,32 @@ function CitationMap({ edges }: { edges: NonNullable<ToolResult["edges"]> }) {
   );
 }
 
-function ResultView({ data }: { data: ToolResult }) {
+function ResultView({
+  data,
+  provider,
+  operation,
+  configured,
+  onSettings,
+}: {
+  data: ToolResult;
+  provider: string;
+  operation: string;
+  configured: boolean;
+  onSettings: () => void;
+}) {
+  const paragraphs = Array.isArray(data.data?.paragraphs)
+    ? (data.data.paragraphs as { kind: string; text: string }[])
+    : null;
+  const segments = Array.isArray(data.data?.segments)
+    ? (data.data.segments as Record<string, unknown>[])
+    : null;
+  const passage =
+    provider === "sciverse" &&
+    operation === "content" &&
+    typeof data.data?.text === "string"
+      ? data.data.text
+      : null;
+  const customBody = paragraphs || segments || passage;
   const max = Math.max(1, ...data.items.map((x) => Number(x.count) || 0));
   return (
     <div className="tools-result">
@@ -201,14 +234,68 @@ function ResultView({ data }: { data: ToolResult }) {
       {data.edges?.length ? <CitationMap edges={data.edges} /> : null}
       {data.title && <h3>{data.title}</h3>}
       {data.details && <StructuredValue value={data.details} />}
-      {data.data && <StructuredValue value={data.data} />}
+      {paragraphs && (
+        <ParagraphReader
+          paragraphs={paragraphs}
+          title={`已读取正文 · ${paragraphs.length} 个段落项`}
+          note="取自 Europe PMC 开放全文 XML，不是摘要或模型总结。图片、表格和完整结构请查看原文文件。"
+        />
+      )}
+      {paragraphs && typeof data.data?.pmcid === "string" && (
+        <a
+          href={`/api/literature/europepmc/fulltext/${encodeURIComponent(data.data.pmcid)}?format=xml`}
+          download
+        >
+          下载原始全文 XML
+        </a>
+      )}
+      {passage && (
+        <section className="content-reader">
+          <h3>已取回原文片段 · 非整篇全文</h3>
+          <p>当前为按 offset 读取的一段文本；还有下一段时可继续读取。</p>
+          <div className="content-reader-body">
+            <p>{passage}</p>
+          </div>
+        </section>
+      )}
+      {segments && (
+        <section className="content-reader">
+          <h3>已取回出处段落 · 共 {segments.length} 段</h3>
+          <p>这是所选位置的原文上下文，不代表整篇论文。</p>
+          <div className="content-reader-body">
+            {segments.map((segment, i) => (
+              <article key={i}>
+                <small>
+                  {String(
+                    segment.paragraph_id || segment.marker || `段落 ${i + 1}`,
+                  )}
+                </small>
+                <blockquote>
+                  {String(segment.text || segment.content || "未提供段落文本")}
+                </blockquote>
+              </article>
+            ))}
+          </div>
+        </section>
+      )}
+      {data.data &&
+        (customBody ? (
+          <details>
+            <summary>查看返回字段与定位信息</summary>
+            <StructuredValue value={data.data} />
+          </details>
+        ) : (
+          <StructuredValue value={data.data} />
+        ))}
       {!!data.provider_response && (
         <details>
           <summary>查看供应方响应字段（已移除凭据字段）</summary>
           <StructuredValue value={data.provider_response} />
         </details>
       )}
-      {data.view === "groups" ? (
+      {data.view === "annotations" ? (
+        <AnnotationCards items={data.items} />
+      ) : data.view === "groups" ? (
         <div className="tools-groups">
           {data.items.map((g, i) => (
             <div key={i}>
@@ -220,13 +307,28 @@ function ResultView({ data }: { data: ToolResult }) {
         </div>
       ) : (
         data.items.map((item, i) => (
-          <article className="tools-record" key={i}>
+          <article
+            className="tools-record"
+            key={`${String(item.id || i)}:${operation}`}
+          >
             <h4>{String(item.title || item.id || `记录 ${i + 1}`)}</h4>
             {!!item.id && <small>{String(item.id)}</small>}
             {typeof item.url === "string" && /^https?:\/\//i.test(item.url) && (
               <a href={item.url} target="_blank" rel="noopener noreferrer">
-                打开来源
+                查看书目记录 / 来源页 ↗
               </a>
+            )}
+            {data.view === "papers" && (
+              <ArticleContent
+                paper={item as unknown as LiteraturePaper}
+                configured={configured}
+                onSettings={onSettings}
+              />
+            )}
+            {data.view === "papers" && !item.abstract && (
+              <p className="source-muted">
+                本次未返回摘要；当前只有书目与可用关联字段。
+              </p>
             )}
             {item.text ? (
               <p className="tools-text">{String(item.text)}</p>
@@ -239,6 +341,13 @@ function ResultView({ data }: { data: ToolResult }) {
             ) : null}
             {Array.isArray(item.authors) && (
               <p className="source-muted">{item.authors.join(", ")}</p>
+            )}
+            {provider === "sciverse" && operation === "metadata" && (
+              <p className="content-badge kind-passages">
+                {(item.details as Record<string, unknown> | undefined)?.doc_id
+                  ? "有正文 doc_id · 可通过原文接口读取片段，当前尚未读取"
+                  : "未返回正文 doc_id · 当前只有元数据"}
+              </p>
             )}
             {item.details ? <StructuredValue value={item.details} /> : null}
           </article>
@@ -288,6 +397,7 @@ export default function ServiceTools({
     else setInternalOperation(id);
   }
   const spec = operations.find((o) => o.id === operation)!;
+  const example = apiExample(provider, operation);
   const [values, setValues] = useState<Record<string, string>>({});
   const [data, setData] = useState<ToolResult | null>(null);
   const [error, setError] = useState("");
@@ -575,6 +685,14 @@ export default function ServiceTools({
           {contract.note && <p>{contract.note}</p>}
         </section>
       )}
+      <div className="operation-content" aria-label="本功能的全文边界">
+        <strong
+          className={`content-badge kind-${operationContent(provider, operation).kind}`}
+        >
+          {operationContent(provider, operation).label}
+        </strong>
+        <p>{operationContent(provider, operation).detail}</p>
+      </div>
       <p className="source-muted">{spec.help}</p>
       {needsKey && (
         <div className="source-notice">
@@ -591,10 +709,72 @@ export default function ServiceTools({
           扩展。
         </p>
       )}
+      <section className="example-panel" aria-label="本功能示例">
+        <strong>{example.title}</strong>
+        <p>{example.description}</p>
+        <small>{example.basis}</small>
+        <details>
+          <summary>查看示例参数</summary>
+          <dl>
+            {Object.entries(example.values)
+              .filter(([key]) => spec.fields.some((f) => f.key === key))
+              .map(([key, value]) => (
+                <div key={key}>
+                  <dt>{key}</dt>
+                  <dd>
+                    <code>{value || "（留空）"}</code>
+                  </dd>
+                </div>
+              ))}
+          </dl>
+        </details>
+        <p>
+          {example.links.map((link) => (
+            <a
+              key={link.url}
+              href={link.url}
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              {link.label} ↗{" "}
+            </a>
+          ))}
+        </p>
+        <button
+          type="button"
+          disabled={busy}
+          onClick={() => {
+            const allowed = new Set(spec.fields.map((f) => f.key));
+            setValues((v) => ({
+              ...v,
+              ...Object.fromEntries(
+                Object.entries(example.values).filter(([key]) =>
+                  allowed.has(key),
+                ),
+              ),
+            }));
+            setError("");
+          }}
+        >
+          填入 RSI 示例（不执行）
+        </button>
+        {example.prerequisite && (
+          <button
+            type="button"
+            disabled={busy}
+            onClick={() => setOperation(example.prerequisite!.operation)}
+          >
+            {example.prerequisite.label}
+          </button>
+        )}
+      </section>
       <form onSubmit={run} className="tools-form">
         {spec.fields.map((f) => (
           <label key={f.key}>
             {f.label}
+            <small className="source-muted">
+              {fieldHelp(provider, operation, f.key)}
+            </small>
             {f.type === "select" ? (
               <select
                 aria-label={f.label}
@@ -757,7 +937,14 @@ export default function ServiceTools({
               </button>
             )}
           </div>
-          <ResultView data={data} />
+          <ResultView
+            key={`${operation}:${JSON.stringify(savedRequest.current)}`}
+            data={data}
+            provider={provider}
+            operation={operation}
+            configured={configured}
+            onSettings={onSettings}
+          />
           {data.view === "papers" &&
             data.items.length > 0 &&
             provider !== "sciverse" &&

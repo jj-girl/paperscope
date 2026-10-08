@@ -1,10 +1,12 @@
 # PaperScope · 文献接口实验台
 
-[English](README.md) · [数据库范围与 API 输入输出](docs/API_REFERENCE_RESEARCH.md) · [接入与验证状态](docs/SOURCE_CAPABILITIES.md) · [可选 AI](docs/SHARED_AI.md)
+[English](README.md) · [数据库范围与 API 输入输出](docs/API_REFERENCE_RESEARCH.md) · [OA 与全文数量核验](docs/COUNT_AUDIT.md) · [接入与验证状态](docs/SOURCE_CAPABILITIES.md) · [可选 AI](docs/SHARED_AI.md)
 
 PaperScope 用同一个网页探索 **Sciverse、PubMed、Europe PMC、OpenAlex、Semantic Scholar 和 Elicit** 的数据接口。它让数据库覆盖范围、数据粒度和接口输入输出直接可见，帮助判断每个来源适合什么工作。
 
 默认不调用使用者配置的大模型。选择 API 按钮只切换表单；填写参数后点击运行才请求数据。旧 FrontierLens 阅读器、图谱页面、主题探索与自动导读后端已从当前源码删除。
+
+每个功能都附 RSI 参数示例与字段说明，可一键填入但不会自动执行。论文结果分别显示外部全文入口、可获取的 XML/PDF 和成功取回的正文；实体注释与出处段落使用独立展示。规模说明附统计口径与来源。参见 [RSI 功能示例](docs/RSI_EXAMPLES.md)。
 
 ## 使用流程
 

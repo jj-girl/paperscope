@@ -12,6 +12,8 @@ export interface LiteraturePaper {
   url: string | null;
   fulltext_url: string | null;
   fulltext_readable: boolean;
+  is_open_access?: boolean | null;
+  content_status_known?: boolean;
   citation_count: number | null;
   subjects: string[];
   publication_types?: string[];

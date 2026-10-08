@@ -7,6 +7,10 @@ import {
   readJson,
 } from "./SourceConnections";
 import ServiceTools from "./ServiceTools";
+import { CoveragePanels, CoverageComparison } from "./CoveragePanels";
+import { COVERAGE } from "./coverageProfiles";
+import { operationContent } from "./contentAccess";
+import "./content-access.css";
 import "./base.css";
 import "./api-workbench.css";
 
@@ -127,7 +131,7 @@ export default function ApiWorkbench() {
               onClick={() => choose(id)}
             >
               <strong>{p.name}</strong>
-              <span>{p.granularity.slice(0, 2).join(" · ")}</span>
+              <span>{COVERAGE[id].access}</span>
               <small>{API_OPERATIONS[id].length} 个操作入口</small>
             </button>
           ))}
@@ -145,49 +149,7 @@ export default function ApiWorkbench() {
           )}
           {modelSettings && aiEnabled && <OptionalModelConnection />}
           {overview ? (
-            <section className="api-overview">
-              <h1>文献数据库范围与数据粒度</h1>
-              <p>
-                检索到记录、能取得全文、具有结构化实体和能生成回答，是不同能力。下面按各服务官方接口说明区分。
-              </p>
-              <div className="api-scope-table">
-                <table>
-                  <thead>
-                    <tr>
-                      <th>服务</th>
-                      <th>数据库范围</th>
-                      <th>返回粒度</th>
-                      <th>不用本地 LLM 时的边界</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {Object.entries(SOURCE_RESEARCH).map(([id, p]) => (
-                      <tr key={id}>
-                        <td>
-                          <button onClick={() => choose(id)}>{p.name}</button>
-                        </td>
-                        <td>{p.scope}</td>
-                        <td>{p.granularity.join("、")}</td>
-                        <td>
-                          {p.modelBoundary}
-                          <p>{p.boundary}</p>
-                          {p.docs.map((d) => (
-                            <a
-                              key={d.url}
-                              href={d.url}
-                              target="_blank"
-                              rel="noopener noreferrer"
-                            >
-                              {d.label}
-                            </a>
-                          ))}
-                        </td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
-              </div>
-            </section>
+            <CoverageComparison onSelect={choose} />
           ) : (
             <>
               <header className="api-source-heading">
@@ -206,26 +168,7 @@ export default function ApiWorkbench() {
                         : "可匿名尝试"}
                 </button>
               </header>
-              <section className="api-scope" aria-label="数据库范围与粒度">
-                <div>
-                  <h2>数据库范围</h2>
-                  <p>{profile.scope}</p>
-                </div>
-                <div>
-                  <h2>数据粒度</h2>
-                  <div className="api-tags">
-                    {profile.granularity.map((g) => (
-                      <span key={g}>{g}</span>
-                    ))}
-                  </div>
-                  <p>{profile.identifiers}</p>
-                </div>
-                <div>
-                  <h2>不调用本地 LLM 的能力边界</h2>
-                  <p>{profile.modelBoundary}</p>
-                  <p>{profile.boundary}</p>
-                </div>
-              </section>
+              <CoveragePanels source={source} />
               <div className="api-references">
                 <span>官方依据 · 核对日期 {RESEARCH_DATE}</span>
                 {profile.docs.map((d) => (
@@ -274,6 +217,11 @@ export default function ApiWorkbench() {
                         {op.contract.family} · {op.contract.granularity}
                       </span>
                       <strong>{op.title}</strong>
+                      <span
+                        className={`content-badge kind-${operationContent(source, op.id).kind}`}
+                      >
+                        {operationContent(source, op.id).label}
+                      </span>
                       {op.contract.apis.map((api) => (
                         <code key={api}>{api}</code>
                       ))}

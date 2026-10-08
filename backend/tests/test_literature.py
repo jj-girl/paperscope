@@ -240,3 +240,40 @@ def test_semantic_neighbors_keep_reference_and_recommendation_semantics_distinct
     assert (
         client.get(f"/api/literature/semantic_scholar/papers/not-an-id/{kind}").status_code == 422
     )
+
+
+def test_oa_status_is_independent_of_available_content_formats():
+    from app.literature import openalex_paper
+
+    paper = openalex_paper(
+        {
+            "id": "https://openalex.org/W1",
+            "open_access": {"is_oa": True},
+            "best_oa_location": {"pdf_url": "https://publisher.example/paper.pdf"},
+            "has_content": {"pdf": False, "grobid_xml": False},
+        }
+    )
+    assert paper.is_open_access is True
+    assert paper.content_status_known is True
+    assert paper.content_formats == []
+    assert paper.fulltext_readable is False
+    unknown = openalex_paper({"id": "https://openalex.org/W2"})
+    assert unknown.is_open_access is None
+    assert unknown.content_status_known is False
+
+
+@respx.mock
+def test_fulltext_can_download_actual_xml_without_changing_paragraph_contract(client):
+    xml = "<article><body><sec><title>Methods</title><p>RSI body.</p></sec></body></article>"
+    route = respx.get(
+        "https://www.ebi.ac.uk/europepmc/webservices/rest/PMC123/fullTextXML"
+    ).respond(text=xml, headers={"Content-Type": "application/xml"})
+    downloaded = client.get("/api/literature/europepmc/fulltext/PMC123?format=xml")
+    assert downloaded.status_code == 200
+    assert downloaded.text == xml
+    assert "application/xml" in downloaded.headers["content-type"]
+    assert 'filename="PMC123.xml"' in downloaded.headers["content-disposition"]
+    rendered = client.get("/api/literature/europepmc/fulltext/PMC123").json()
+    assert rendered["paragraphs"][-1]["text"] == "RSI body."
+    assert route.call_count == 2
+    assert client.get("/api/literature/europepmc/fulltext/123?format=xml").status_code == 422

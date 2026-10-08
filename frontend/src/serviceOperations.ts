@@ -194,7 +194,7 @@ export const SERVICE_OPERATIONS: Record<string, ServiceOperation[]> = {
       id: "annotations",
       title: "实体标注与原文上下文",
       help: "查看文本挖掘标注、上下文、来源锚点和外部实体链接。标注不代表论断已核验。",
-      fields: [record("记录 ID（例如 MED:38451962 或 PMC:PMC11706764）"), size],
+      fields: [record("记录 ID（例如 MED:42793863 或 PMC:PMC13604973）"), size],
     },
     {
       id: "references",
@@ -448,7 +448,7 @@ export const SERVICE_OPERATIONS: Record<string, ServiceOperation[]> = {
       id: "resource",
       title: "图表与附件获取",
       help: "使用原文或接口返回的相对文件路径下载附件，不接受任意 URL。",
-      fields: [record("相对 file_name（例如 papers/2025/abcd/fig1.png）")],
+      fields: [record("相对 file_name（例如 从原文复制，不填任意 URL）")],
       download: "resource",
       needsKey: true,
     },

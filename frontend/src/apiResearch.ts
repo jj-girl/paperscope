@@ -23,7 +23,7 @@ export const SOURCE_RESEARCH: Record<string, SourceResearch> = {
   sciverse: {
     name: "Sciverse",
     scope:
-      "按接口分库看待：通用元数据覆盖论文、书籍及作者/来源记录；正文检索只覆盖可获取文本；Paper Schema 只覆盖已结构化解析的论文，当前以 AI 会议论文为主（官方描述 1M+）。",
+      "按接口分库看待：通用元数据覆盖论文、书籍及作者/来源记录；正文检索只覆盖可获取文本；Paper Schema 只覆盖已结构化解析的论文，官方 GET /paper-schema 当前报告以 AI 会议论文为主，coverage.paper_count=1M+。",
     granularity: [
       "元数据记录",
       "文本片段 / 正文",
@@ -47,8 +47,8 @@ export const SOURCE_RESEARCH: Record<string, SourceResearch> = {
         url: "https://sciverse.opendatalab.com/docs/sciverse/api/paper-schema",
       },
       {
-        label: "公开 OpenAPI",
-        url: "https://github.com/opendatalab/Sciverse-Agent-Tools/blob/main/openapi.yaml",
+        label: "官方平台与数据规模",
+        url: "https://sciverse.opendatalab.com/",
       },
     ],
   },

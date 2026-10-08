@@ -1,0 +1,226 @@
+.source-access-banner {
+  padding: 18px 22px;
+  border: 1px solid #b8d7cb;
+  border-left: 5px solid #28765d;
+  background: #eff8f3;
+  border-radius: 9px;
+  margin-bottom: 14px;
+}
+.source-access-banner > span {
+  font-size: 11px;
+  color: #4b6c60;
+}
+.source-access-banner h2 {
+  font-size: 19px;
+  margin: 5px 0 9px;
+}
+.source-access-banner p {
+  font-size: 13px;
+  line-height: 1.8;
+  margin-bottom: 8px;
+}
+.source-access-banner > strong {
+  font-size: 12px;
+}
+.access-pubmed,
+.access-semantic_scholar,
+.access-elicit {
+  background: #f4f5f8;
+  border-color: #ced4df;
+  border-left-color: #68768e;
+}
+.access-sciverse {
+  background: #f4f0fb;
+  border-color: #d6c5ed;
+  border-left-color: #7956ac;
+}
+.coverage-panels {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  border: 1px solid #dfe5ee;
+  background: white;
+  border-radius: 9px;
+  overflow: hidden;
+}
+.coverage-panels > div {
+  padding: 20px;
+  border-right: 1px solid #dfe5ee;
+  font-size: 12px;
+  line-height: 1.9;
+}
+.coverage-panels > div:last-child {
+  border: 0;
+}
+.coverage-panels h2 {
+  font-size: 14px;
+  color: #344e70;
+}
+.coverage-metrics {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+.coverage-metrics li {
+  display: grid;
+  gap: 3px;
+  margin-bottom: 12px;
+}
+.coverage-metrics strong {
+  font-size: 19px;
+  color: #293c59;
+}
+.coverage-metrics small {
+  color: #687a91;
+}
+.content-badge {
+  display: inline-block;
+  width: fit-content;
+  padding: 4px 8px;
+  border-radius: 4px;
+  font-size: 11px;
+  line-height: 1.5;
+  background: #eef1f6;
+  color: #44566f;
+}
+.kind-fulltext,
+.kind-file {
+  background: #e7f4ed;
+  color: #246648;
+}
+.kind-passages,
+.kind-structure {
+  background: #f0eafa;
+  color: #7144a0;
+}
+.kind-annotations {
+  background: #fff3df;
+  color: #885b1a;
+}
+.kind-generated {
+  background: #fff0eb;
+  color: #9a523d;
+}
+.operation-content {
+  padding: 12px 16px;
+  margin: 12px 0;
+  border-left: 4px solid #8597b2;
+  background: #f5f7fa;
+  font-size: 13px;
+  line-height: 1.8;
+}
+.operation-content p {
+  margin: 6px 0 0;
+}
+.paper-access {
+  border: 1px solid #dbe2ec;
+  border-left: 4px solid #8996ab;
+  padding: 14px;
+  margin: 12px 0;
+  border-radius: 6px;
+  background: #f7f9fc;
+}
+.paper-access.has-content {
+  border-left-color: #3c8965;
+  background: #f1f8f3;
+}
+.paper-access p {
+  margin: 8px 0;
+  font-size: 12px;
+  line-height: 1.8;
+}
+.paper-access-status {
+  display: flex;
+  gap: 7px;
+  flex-wrap: wrap;
+}
+.paper-access a {
+  display: inline-block;
+  margin: 5px 10px 5px 0;
+  font-size: 12px;
+}
+.content-reader {
+  margin-top: 14px;
+  border: 1px solid #cad7e4;
+  background: white;
+  border-radius: 8px;
+  padding: 20px;
+}
+.content-reader h3 {
+  font-size: 17px;
+}
+.content-reader > p {
+  font-size: 12px;
+  line-height: 1.8;
+  color: #617289;
+}
+.content-reader-body {
+  max-height: 65vh;
+  overflow: auto;
+  padding: 12px 18px;
+  border-top: 1px solid #e1e7ee;
+}
+.content-reader-body p,
+.content-reader-body blockquote {
+  line-height: 1.95;
+  font-size: 14px;
+  white-space: pre-wrap;
+  margin: 14px 0;
+}
+.content-reader-body blockquote {
+  border-left: 3px solid #a590c2;
+  padding-left: 14px;
+}
+.content-reader iframe {
+  width: 100%;
+  height: 60vh;
+  border: 1px solid #dde3eb;
+}
+.annotation-card {
+  background: #fffaf0;
+  border: 1px solid #efdfbb;
+  border-radius: 8px;
+  padding: 16px;
+  margin-top: 12px;
+}
+.annotation-card mark {
+  background: #ffe6a6;
+  padding: 2px 5px;
+}
+.annotation-card p {
+  line-height: 1.8;
+}
+.annotation-card small {
+  color: #786745;
+}
+.example-panel {
+  border: 1px solid #cedcef;
+  background: #f5f8fe;
+  border-radius: 7px;
+  padding: 14px;
+  margin: 12px 0;
+  font-size: 12px;
+  line-height: 1.8;
+}
+.example-panel p {
+  margin: 6px 0;
+}
+.example-panel code {
+  overflow-wrap: anywhere;
+}
+@media (max-width: 1050px) {
+  .coverage-panels {
+    grid-template-columns: 1fr;
+  }
+  .coverage-panels > div {
+    border-right: 0;
+    border-bottom: 1px solid #dfe5ee;
+  }
+}
+@media (max-width: 700px) {
+  .content-reader {
+    padding: 12px;
+  }
+  .content-reader-body {
+    padding: 8px;
+  }
+}

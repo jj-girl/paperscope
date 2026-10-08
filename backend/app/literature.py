@@ -13,6 +13,7 @@ from urllib.parse import quote, urlsplit
 
 import httpx
 from fastapi import APIRouter, HTTPException, Request
+from fastapi.responses import Response
 from pydantic import BaseModel, ConfigDict, Field, SecretStr
 
 from app.semantic_access import source_client
@@ -95,6 +96,8 @@ class Paper(BaseModel):
     url: str | None = None
     fulltext_url: str | None = None
     fulltext_readable: bool = False
+    is_open_access: bool | None = None
+    content_status_known: bool = False
     citation_count: int | None = None
     subjects: list[str] = Field(default_factory=list)
     publication_types: list[str] = Field(default_factory=list)
@@ -356,6 +359,7 @@ def europe_paper(item: dict) -> Paper:
         url=f"https://europepmc.org/article/{quote(source, safe='')}/{quote(pid, safe='')}",
         fulltext_url=fulltext,
         fulltext_readable=bool(pmcid and item.get("isOpenAccess") == "Y"),
+        is_open_access={"Y": True, "N": False}.get(item.get("isOpenAccess")),
         citation_count=item.get("citedByCount"),
     )
 
@@ -409,6 +413,8 @@ def openalex_paper(item: dict) -> Paper:
         url=safe_url(primary.get("landing_page_url")) or safe_url(item.get("id")),
         fulltext_url=safe_url(location.get("pdf_url"))
         or safe_url(location.get("landing_page_url")),
+        is_open_access=(item.get("open_access") or {}).get("is_oa"),
+        content_status_known=isinstance(item.get("has_content"), dict),
         citation_count=item.get("cited_by_count"),
         publication_types=[item["type"]] if item.get("type") else [],
         topics=[p["display_name"] for p in item.get("topics", []) if p.get("display_name")],
@@ -506,6 +512,7 @@ def semantic_paper(p: dict) -> Paper:
         pmcid=ids.get("PubMedCentral"),
         url=safe_url(p.get("url")),
         fulltext_url=safe_url((p.get("openAccessPdf") or {}).get("url")),
+        is_open_access=p.get("isOpenAccess"),
         citation_count=p.get("citationCount"),
     )
 
@@ -622,14 +629,19 @@ async def search(provider: Provider, payload: SearchInput, request: Request) -> 
 
 
 @router.get("/europepmc/fulltext/{pmcid}")
-async def fulltext(pmcid: str) -> dict:
+async def fulltext(pmcid: str, format: Literal["paragraphs", "xml"] = "paragraphs") -> dict:
     if not re.fullmatch(r"PMC\d+", pmcid):
         raise HTTPException(422, "需要有效的 PMCID。")
     async with httpx.AsyncClient(timeout=30, follow_redirects=False) as client:
-        root = xml_body(
-            await fetch(
-                client, f"https://www.ebi.ac.uk/europepmc/webservices/rest/{pmcid}/fullTextXML"
-            )
+        response = await fetch(
+            client, f"https://www.ebi.ac.uk/europepmc/webservices/rest/{pmcid}/fullTextXML"
+        )
+        root = xml_body(response)
+    if format == "xml":
+        return Response(
+            response.content,
+            media_type="application/xml",
+            headers={"Content-Disposition": f'attachment; filename="{pmcid}.xml"'},
         )
     paragraphs = []
     body = root.find("body")

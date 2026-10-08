@@ -211,7 +211,7 @@ const operations: Record<string, ServiceOperation[]> = {
       fields: [
         {
           key: "record_id",
-          label: "PMCID（例如 PMC11706764）",
+          label: "PMCID（例如 PMC13604973）",
           required: true,
         },
       ],
