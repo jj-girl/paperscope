@@ -2,7 +2,7 @@
 
 **A literature API workbench: coverage, granularity, inputs and outputs.**
 
-[简体中文](README.zh-CN.md) · [Upstream sources and API comparison](docs/SOURCE_COMPARISON.md) · [API reference](docs/API_REFERENCE_RESEARCH.md) · [Count audit](docs/COUNT_AUDIT.md) · [Integration status](docs/SOURCE_CAPABILITIES.md) · [Optional AI](docs/SHARED_AI.md)
+[简体中文](README.zh-CN.md) · [RSI benchmark tables](docs/07_MULTISOURCE_API_COMPARISON.md) · [Upstream sources and API comparison](docs/SOURCE_COMPARISON.md) · [API reference](docs/API_REFERENCE_RESEARCH.md) · [Count audit](docs/COUNT_AUDIT.md) · [Integration status](docs/SOURCE_CAPABILITIES.md) · [Optional AI](docs/SHARED_AI.md)
 
 PaperScope exposes **Sciverse, PubMed, Europe PMC, OpenAlex, Semantic Scholar and Elicit** through named API operation buttons. Inspect each database's scope, select an endpoint, enter parameters, run it, and inspect or export its response. A comparison view explains differences in coverage and data granularity.
 
@@ -49,7 +49,7 @@ Open **http://127.0.0.1:3040**. The frontend proxies the backend at port 8040; b
 
 ## Configuration and optional AI
 
-No API keys, accounts, runtime responses or paper datasets are distributed. Use each source's **数据连接设置** (data connection settings). PubMed and Europe PMC support anonymous access; Sciverse needs a data token, OpenAlex content needs a key, Semantic Scholar anonymous calls may be throttled, and Elicit needs paid API access.
+No API keys, accounts, raw runtime responses or full-text files are distributed. Reviewed benchmark reports contain aggregate metrics and bibliographic identifiers only. Use each source's **数据连接设置** (data connection settings). PubMed and Europe PMC support anonymous access; Sciverse needs a data token, OpenAlex content needs a key, Semantic Scholar anonymous calls may be throttled, and Elicit needs paid API access.
 
 The **启用 AI 扩展（可选）** switch is off by default. Enable it to configure a shared model and analyze supported paper result sets, or to start Elicit's own generation tasks. Shared analysis supports guides, comparison, Q&A, screening, extraction and review drafts; this is independent of the removed reader. See [SHARED_AI.md](docs/SHARED_AI.md).
 

@@ -1,6 +1,6 @@
 # PaperScope · 文献接口实验台
 
-[English](README.md) · [服务来源与接口完整对照](docs/SOURCE_COMPARISON.md) · [数据库范围与 API 输入输出](docs/API_REFERENCE_RESEARCH.md) · [OA 与全文数量核验](docs/COUNT_AUDIT.md) · [接入与验证状态](docs/SOURCE_CAPABILITIES.md) · [可选 AI](docs/SHARED_AI.md)
+[English](README.md) · [07：RSI 小样本实测三表](docs/07_MULTISOURCE_API_COMPARISON.md) · [服务来源与接口完整对照](docs/SOURCE_COMPARISON.md) · [数据库范围与 API 输入输出](docs/API_REFERENCE_RESEARCH.md) · [OA 与全文数量核验](docs/COUNT_AUDIT.md) · [接入与验证状态](docs/SOURCE_CAPABILITIES.md) · [可选 AI](docs/SHARED_AI.md)
 
 PaperScope 用同一个网页探索 **Sciverse、PubMed、Europe PMC、OpenAlex、Semantic Scholar 和 Elicit** 的数据接口。它让数据库覆盖范围、数据粒度和接口输入输出直接可见，帮助判断每个来源适合什么工作。
 
@@ -59,7 +59,7 @@ ssh -N -L 3040:127.0.0.1:3040 USER@SERVER
 
 ## 数据连接与可选 AI
 
-**仓库不包含 API Key、账户凭据、运行结果或论文数据集。** 在各来源的“数据连接设置”填写自己的凭据。
+**仓库不包含 API Key、账户凭据、原始接口响应或论文全文文件。公开实测报告仅含汇总指标与复核用的文献标识。** 在各来源的“数据连接设置”填写自己的凭据。
 
 - PubMed、Europe PMC 可匿名使用，NCBI Key 可选。
 - OpenAlex 的内容文件需要 Key；实际访问、额度与计费以账户和接口响应为准。
